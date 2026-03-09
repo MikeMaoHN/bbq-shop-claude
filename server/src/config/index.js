@@ -17,6 +17,8 @@ module.exports = {
     mchId: process.env.WX_MCH_ID || '',
     mchKey: process.env.WX_MCH_KEY || '',
     notifyUrl: process.env.WX_NOTIFY_URL || '',
+    // 启动默认：true=模拟支付，false=真实支付（可被管理后台 DB 设置覆盖，运行时生效）
+    payMock: process.env.WECHAT_PAY_MOCK === 'true' || process.env.NODE_ENV !== 'production',
   },
 
   upload: {

@@ -139,6 +139,16 @@ export const settingApi = {
   }
 }
 
+// ==================== 支付配置模块 ====================
+export const payApi = {
+  getMockMode() {
+    return request.get('/pay/mock-mode')
+  },
+  setMockMode(mock) {
+    return request.put('/pay/mock-mode', { mock })
+  }
+}
+
 // ==================== 上传模块 ====================
 export const uploadApi = {
   uploadFile(file) {

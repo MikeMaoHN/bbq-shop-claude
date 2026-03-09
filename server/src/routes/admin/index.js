@@ -17,5 +17,6 @@ router.use('/coupons', authAdmin, require('./coupon'));
 router.use('/admins', authAdmin, require('./adminManager'));
 router.use('/settings', authAdmin, require('./setting'));
 router.use('/upload', authAdmin, require('./upload'));
+router.use('/pay', authAdmin, require('./payConfig'));
 
 module.exports = router;

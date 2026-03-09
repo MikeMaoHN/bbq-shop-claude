@@ -2,6 +2,8 @@ const express = require('express');
 const { Op } = require('sequelize');
 const db = require('../../models');
 const { success, paginate, fail } = require('../../utils/response');
+const wxPay = require('../../services/wechatPay');
+const { generateOrderNo } = require('../../utils/orderNo');
 
 const router = express.Router();
 
@@ -84,7 +86,14 @@ router.put('/:id/refund', async (req, res, next) => {
       return fail(res, '该订单未申请退款');
     }
     if (action === 'approve') {
-      // TODO: 实际退款到微信支付
+      const totalFen = Math.round(parseFloat(order.pay_amount) * 100);
+      await wxPay.processRefund({
+        orderNo: order.order_no,
+        transactionId: order.transaction_id,
+        totalFen,
+        refundFen: totalFen,
+        refundNo: `REF${generateOrderNo()}`,
+      });
       await order.update({ status: 6 });
       success(res, null, '退款已通过');
     } else {

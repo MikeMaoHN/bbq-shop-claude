@@ -1,8 +1,9 @@
 <template>
   <div class="setting-page">
-    <el-card shadow="never" v-loading="loading">
+    <!-- 基础设置 -->
+    <el-card shadow="never" v-loading="loading" style="margin-bottom: 20px">
       <template #header>
-        <span>系统设置</span>
+        <span>基础设置</span>
       </template>
 
       <el-form
@@ -38,13 +39,59 @@
         </el-form-item>
       </el-form>
     </el-card>
+
+    <!-- 支付设置 -->
+    <el-card shadow="never" v-loading="payLoading">
+      <template #header>
+        <span>支付设置</span>
+      </template>
+
+      <el-form label-width="140px" style="max-width: 600px">
+        <el-form-item label="支付模式">
+          <el-switch
+            v-model="isMockPay"
+            :loading="payToggling"
+            active-text="模拟支付（测试）"
+            inactive-text="真实支付（生产）"
+            active-color="#e6a23c"
+            inactive-color="#67c23a"
+            @change="handlePayModeChange"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-alert
+            v-if="isMockPay"
+            title="当前为【模拟支付】模式"
+            type="warning"
+            :closable="false"
+            show-icon
+          >
+            <template #default>
+              用户下单后将自动模拟支付成功，无需真实微信支付流程。适用于开发测试和生产环境验收。
+              切换后<strong>立即生效</strong>，无需重启服务。
+            </template>
+          </el-alert>
+          <el-alert
+            v-else
+            title="当前为【真实支付】模式"
+            type="success"
+            :closable="false"
+            show-icon
+          >
+            <template #default>
+              用户下单后将调起真实微信收银台，需配置 <code>WX_MCH_ID</code> / <code>WX_MCH_KEY</code> 等商户参数。
+            </template>
+          </el-alert>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { settingApi } from '../../api'
+import { settingApi, payApi } from '../../api'
 
 const formRef = ref()
 const loading = ref(false)
@@ -63,6 +110,11 @@ const rules = {
   shop_name: [{ required: true, message: '请输入店铺名称', trigger: 'blur' }],
   shop_phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }]
 }
+
+// ── 支付模式 ──
+const payLoading = ref(false)
+const payToggling = ref(false)
+const isMockPay = ref(false)
 
 async function fetchSettings() {
   loading.value = true
@@ -86,6 +138,18 @@ async function fetchSettings() {
   }
 }
 
+async function fetchPayMode() {
+  payLoading.value = true
+  try {
+    const res = await payApi.getMockMode()
+    isMockPay.value = (res.data || res).mock === true
+  } catch (e) {
+    // handled by interceptor
+  } finally {
+    payLoading.value = false
+  }
+}
+
 async function handleSave() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
@@ -101,8 +165,21 @@ async function handleSave() {
   }
 }
 
+async function handlePayModeChange(val) {
+  payToggling.value = true
+  try {
+    await payApi.setMockMode(val)
+    ElMessage.success(val ? '已切换为模拟支付模式' : '已切换为真实支付模式')
+  } catch (e) {
+    isMockPay.value = !val // 切换失败回滚
+  } finally {
+    payToggling.value = false
+  }
+}
+
 onMounted(() => {
   fetchSettings()
+  fetchPayMode()
 })
 </script>
 
@@ -111,5 +188,11 @@ onMounted(() => {
   margin-left: 8px;
   color: #909399;
   font-size: 13px;
+}
+code {
+  background: #f5f7fa;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 12px;
 }
 </style>

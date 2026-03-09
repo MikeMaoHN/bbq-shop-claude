@@ -9,6 +9,7 @@ const addressRoutes = require('./address');
 const orderRoutes = require('./order');
 const couponRoutes = require('./coupon');
 const userRoutes = require('./user');
+const payRoutes = require('./pay');
 
 router.use('/auth', authRoutes);
 router.use('/home', homeRoutes);
@@ -18,5 +19,6 @@ router.use('/addresses', addressRoutes);
 router.use('/orders', orderRoutes);
 router.use('/coupons', couponRoutes);
 router.use('/user', userRoutes);
+router.use('/pay', payRoutes);
 
 module.exports = router;

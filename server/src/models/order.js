@@ -16,6 +16,7 @@ module.exports = (sequelize) => {
     receive_time: { type: DataTypes.DATE, defaultValue: null },
     delivery_time_slot: { type: DataTypes.STRING(50), defaultValue: '' },
     remark: { type: DataTypes.STRING(200), defaultValue: '' },
+    transaction_id: { type: DataTypes.STRING(64), defaultValue: '' },
   }, {
     tableName: 'orders',
   });

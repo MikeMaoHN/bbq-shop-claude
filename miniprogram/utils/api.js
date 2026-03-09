@@ -58,6 +58,13 @@ const user = {
   updateProfile: (data) => put('/user/profile', data)
 }
 
+// ========== 支付模块 ==========
+const pay = {
+  getMockMode: () => get('/pay/mock-mode'),
+  prepay: (orderId) => post('/pay/prepay', { order_id: orderId }),
+  mockConfirm: (orderId) => post('/pay/mock-confirm', { order_id: orderId })
+}
+
 module.exports = {
   auth,
   home,
@@ -66,5 +73,6 @@ module.exports = {
   address,
   order,
   coupon,
-  user
+  user,
+  pay
 }
