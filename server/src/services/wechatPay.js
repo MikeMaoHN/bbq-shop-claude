@@ -38,13 +38,17 @@ function toXml(obj) {
   return `<xml>${body}</xml>`;
 }
 
-/** 解析 XML（简单正则，避免引入 xml2js 依赖） */
+/** 解析 XML（支持 CDATA 包裹和普通文本，避免引入 xml2js 依赖） */
 function parseXml(xml) {
   const result = {};
-  const re = /<(\w+)>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/\1>/g;
+  // 匹配 CDATA 包裹：<key><![CDATA[value]]></key>
+  const cdataRe = /<(\w+)><!\[CDATA\[([\s\S]*?)\]\]><\/\1>/g;
+  // 匹配纯文本：<key>value</key>
+  const plainRe = /<(\w+)>([^<]*)<\/\1>/g;
   let m;
-  while ((m = re.exec(xml)) !== null) {
-    result[m[1]] = m[2];
+  while ((m = cdataRe.exec(xml)) !== null) result[m[1]] = m[2];
+  while ((m = plainRe.exec(xml)) !== null) {
+    if (!(m[1] in result)) result[m[1]] = m[2];
   }
   return result;
 }

@@ -6,9 +6,23 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
+    "test": "jest --coverage --forceExit",
+    "test:unit": "jest tests/unit --coverage --forceExit",
+    "test:integration": "jest tests/integration --coverage --forceExit",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:seed": "npx sequelize-cli db:seed:all",
     "db:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "coverageDirectory": "tests/coverage",
+    "coverageReporters": ["text", "lcov", "json-summary"],
+    "collectCoverageFrom": [
+      "src/services/wechatPay.js",
+      "src/routes/api/pay.js",
+      "src/routes/admin/payConfig.js"
+    ]
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,6 +37,8 @@
     "sequelize-cli": "^6.6.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "jest": "^30.2.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^7.2.2"
   }
 }
