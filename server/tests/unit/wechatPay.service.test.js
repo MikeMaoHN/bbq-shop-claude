@@ -207,3 +207,43 @@ describe('processRefund — 退款处理', () => {
     expect(elapsed).toBeLessThan(200); // 模拟退款应几乎即时
   });
 });
+
+// ─────────────────────────────────────────────────────────────
+describe('分支覆盖补充', () => {
+  test('parseXml：XML 中同名标签只保留第一个（CDATA 优先）', () => {
+    // 手动构造含同名标签的 XML（CDATA 和普通文本都有 return_code）
+    const xml =
+      '<xml>' +
+      '<return_code><![CDATA[SUCCESS]]></return_code>' +
+      '<return_code>DUPLICATE</return_code>' + // 普通文本同名标签，应被忽略
+      '</xml>';
+    const obj = wxPay.parseXml(xml);
+    expect(obj.return_code).toBe('SUCCESS'); // CDATA 优先，duplicate 被忽略（line 51 false 分支）
+  });
+
+  test('mock 模式下 appId 为空串时使用 wx_mock_appid 兜底', async () => {
+    // 临时将 appId 置为空
+    const config = require('../../src/config');
+    const origAppId = config.wx.appId;
+    config.wx.appId = ''; // 触发 line 189: config.wx.appId || 'wx_mock_appid'
+
+    Setting.findOne.mockResolvedValue({ value: 'true' });
+    const params = await wxPay.createPrepay({
+      orderId: 1, orderNo: 'BBQ_EMPTY_APPID', body: 'test', totalFen: 100, openid: 'o',
+    });
+
+    expect(params.appId).toBe('wx_mock_appid');
+    config.wx.appId = origAppId; // 恢复
+  });
+
+  test('verifyNotify 可正确处理签名验证中的 sign 字段被过滤', () => {
+    // sign 本身在签名计算中应被排除，直接构造包含所有普通字段的对象
+    const params = {
+      appid: 'wx_test_appid',
+      mch_id: 'test_mch_id',
+      result_code: 'SUCCESS',
+    };
+    // 用错误 sign 验证 false 分支
+    expect(wxPay.verifyNotify({ ...params, sign: 'BAADSIGN0000000000000000000000000' })).toBe(false);
+  });
+});

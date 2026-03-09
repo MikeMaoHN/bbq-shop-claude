@@ -2,16 +2,19 @@
  * 集成测试 — 小程序支付路由 /api/v1/pay
  *
  * 测试场景：
- *   TC-PAY-01  GET  /mock-mode   查询支付模式
- *   TC-PAY-02  POST /prepay      模拟模式下发起预支付
- *   TC-PAY-03  POST /prepay      未登录拒绝访问
- *   TC-PAY-04  POST /prepay      订单不存在返回 404
- *   TC-PAY-05  POST /prepay      订单已支付返回 400
+ *   TC-PAY-01  GET  /mock-mode    查询支付模式
+ *   TC-PAY-02  POST /prepay       模拟模式下发起预支付
+ *   TC-PAY-03  POST /prepay       未登录拒绝访问
+ *   TC-PAY-04  POST /prepay       订单不存在返回 404
+ *   TC-PAY-05  POST /prepay       订单已支付返回 400
  *   TC-PAY-06  POST /mock-confirm 模拟支付确认成功
  *   TC-PAY-07  POST /mock-confirm 真实模式下禁止调用
  *   TC-PAY-08  POST /mock-confirm 订单状态不正确返回 400
- *   TC-PAY-09  POST /notify      合法回调更新订单状态
- *   TC-PAY-10  POST /notify      签名错误拒绝回调
+ *   TC-PAY-09  POST /notify       合法回调更新订单状态
+ *   TC-PAY-10  POST /notify       签名错误拒绝回调
+ *   TC-PAY-11  POST /prepay       内部异常 → 500
+ *   TC-PAY-12  POST /mock-confirm 内部异常 → 500
+ *   TC-PAY-13  POST /notify       内部异常 → FAIL XML
  */
 
 process.env.NODE_ENV = 'test';
@@ -151,6 +154,15 @@ describe('TC-PAY-02/03/04/05: POST /prepay — 发起预支付', () => {
 
 // ─────────────────────────────────────────────────────────────
 describe('TC-PAY-06/07/08: POST /mock-confirm — 模拟支付确认', () => {
+  test('缺少 order_id 参数返回 400', async () => {
+    const res = await request(app)
+      .post('/pay/mock-confirm')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('缺少 order_id');
+  });
+
   test('TC-PAY-06: mock 模式下成功确认，订单 update 被调用', async () => {
     const order = mockOrder({ status: 0 });
     Order.findOne.mockResolvedValue(order);
@@ -209,6 +221,15 @@ describe('TC-PAY-06/07/08: POST /mock-confirm — 模拟支付确认', () => {
 
 // ─────────────────────────────────────────────────────────────
 describe('TC-PAY-09/10: POST /notify — 微信支付回调', () => {
+  test('空 body 的 notify 请求返回 FAIL（签名校验失败）', async () => {
+    const res = await request(app)
+      .post('/pay/notify')
+      .set('Content-Type', 'text/xml')
+      .send(''); // 空 body → req.body || '' → parseXml('') → 签名验证失败
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('<return_code><![CDATA[FAIL]]></return_code>');
+  });
+
   test('TC-PAY-09: 合法签名回调，订单状态更新为已付款', async () => {
     const order = mockOrder({ status: 0, order_no: 'BBQ_TEST_ORDER' });
     Order.findOne.mockResolvedValue(order);
@@ -235,6 +256,29 @@ describe('TC-PAY-09/10: POST /notify — 微信支付回调', () => {
         status: 1,
         transaction_id: 'wx_txn_abc123',
       }),
+    );
+  });
+
+  test('合法签名回调但不含 transaction_id 字段，transaction_id 写空串', async () => {
+    const order = mockOrder({ status: 0, order_no: 'BBQ_NO_TXN' });
+    Order.findOne.mockResolvedValue(order);
+
+    // 不包含 transaction_id 字段
+    const xml = buildNotifyXml({
+      appid: 'wx_test_appid',
+      mch_id: 'test_mch_id',
+      out_trade_no: 'BBQ_NO_TXN',
+      result_code: 'SUCCESS',
+      return_code: 'SUCCESS',
+    });
+
+    await request(app)
+      .post('/pay/notify')
+      .set('Content-Type', 'text/xml')
+      .send(xml);
+
+    expect(order.update).toHaveBeenCalledWith(
+      expect.objectContaining({ transaction_id: '' }), // || '' 分支
     );
   });
 
@@ -291,5 +335,59 @@ describe('TC-PAY-09/10: POST /notify — 微信支付回调', () => {
       .send(xml);
 
     expect(order.update).not.toHaveBeenCalled();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+describe('TC-PAY-11/12/13: 内部异常错误路径（覆盖 next(err) 分支）', () => {
+  test('TC-PAY-11: /prepay 内部抛出异常时返回 500', async () => {
+    // 让 Order.findOne 抛出数据库异常
+    Order.findOne.mockRejectedValue(new Error('DB connection lost'));
+
+    const res = await request(app)
+      .post('/pay/prepay')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ order_id: 1 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.message).toContain('DB connection lost');
+  });
+
+  test('TC-PAY-12: /mock-confirm 内部抛出异常时返回 500', async () => {
+    // 先让 isMockMode 返回 true，再让 Order.findOne 抛出异常
+    Setting.findOne.mockResolvedValue({ value: 'true' });
+    Order.findOne.mockRejectedValue(new Error('Unexpected DB error'));
+
+    const res = await request(app)
+      .post('/pay/mock-confirm')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ order_id: 1 });
+
+    expect(res.status).toBe(500);
+  });
+
+  test('TC-PAY-13: /notify 内部异常时返回 FAIL XML（始终 HTTP 200）', async () => {
+    // 让 Order.findOne 抛出异常（在签名验证通过后）
+    // 先构造合法签名 XML，再让 DB 抛
+    Order.findOne.mockRejectedValue(new Error('DB query failed'));
+
+    const xml = buildNotifyXml({
+      appid: 'wx_test_appid',
+      mch_id: 'test_mch_id',
+      out_trade_no: 'BBQ_ERR_ORDER',
+      result_code: 'SUCCESS',
+      return_code: 'SUCCESS',
+      transaction_id: 'wx_txn_err',
+    });
+
+    const res = await request(app)
+      .post('/pay/notify')
+      .set('Content-Type', 'text/xml')
+      .send(xml);
+
+    // 微信规范：回调接口永远返回 200
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('<return_code><![CDATA[FAIL]]></return_code>');
+    expect(res.text).toContain('System error');
   });
 });
