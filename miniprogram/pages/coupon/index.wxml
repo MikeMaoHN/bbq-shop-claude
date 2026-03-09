@@ -1,0 +1,27 @@
+<view class="coupon-page">
+  <view class="tabs">
+    <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="onTabChange" data-tab="0">可使用</view>
+    <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="onTabChange" data-tab="1">已使用</view>
+    <view class="tab {{activeTab === 2 ? 'active' : ''}}" bindtap="onTabChange" data-tab="2">已过期</view>
+  </view>
+
+  <view class="coupon-card {{item.status !== 0 ? 'used' : ''}}" wx:for="{{coupons}}" wx:key="id">
+    <view class="coupon-left">
+      <view class="coupon-value">
+        <text class="symbol">¥</text>
+        <text class="amount">{{item.Coupon.type === 1 ? item.Coupon.value : item.Coupon.value * 10 + '折'}}</text>
+      </view>
+      <text class="min-amount">满{{item.Coupon.min_amount}}可用</text>
+    </view>
+    <view class="coupon-right">
+      <text class="coupon-name">{{item.Coupon.name}}</text>
+      <text class="coupon-date">{{item.Coupon.start_time}} 至 {{item.Coupon.end_time}}</text>
+      <text class="coupon-status">{{statusText[item.status]}}</text>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && coupons.length === 0}}">
+    <text>暂无优惠券</text>
+    <navigator url="/pages/index/index" open-type="switchTab" class="go-btn">去逛逛</navigator>
+  </view>
+</view>

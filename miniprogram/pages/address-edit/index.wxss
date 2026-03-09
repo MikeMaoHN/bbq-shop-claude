@@ -1,0 +1,10 @@
+.edit-page { background: #f5f5f5; min-height: 100vh; padding-bottom: 40rpx; }
+.form-card { background: #fff; margin-bottom: 16rpx; }
+.form-item { display: flex; align-items: center; padding: 30rpx; border-bottom: 1rpx solid #f5f5f5; }
+.form-label { width: 160rpx; font-size: 28rpx; color: #333; flex-shrink: 0; }
+.form-input { flex: 1; font-size: 28rpx; color: #333; }
+.form-value { flex: 1; font-size: 28rpx; color: #333; }
+.form-value.placeholder { color: #ccc; }
+.default-section { background: #fff; padding: 24rpx 30rpx; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40rpx; }
+.save-btn { margin: 0 30rpx; background: #FF6B35; color: #fff; text-align: center; padding: 28rpx; border-radius: 50rpx; font-size: 30rpx; }
+.delete-btn { margin: 30rpx 30rpx 0; border: 1rpx solid #e5e5e5; color: #999; text-align: center; padding: 28rpx; border-radius: 50rpx; font-size: 28rpx; }

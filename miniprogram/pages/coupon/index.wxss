@@ -1,0 +1,17 @@
+.coupon-page { background: #f5f5f5; min-height: 100vh; }
+.tabs { background: #fff; display: flex; }
+.tab { flex: 1; text-align: center; padding: 24rpx; font-size: 28rpx; color: #666; }
+.tab.active { color: #FF6B35; border-bottom: 4rpx solid #FF6B35; }
+.coupon-card { background: #fff; margin: 16rpx; border-radius: 16rpx; display: flex; overflow: hidden; }
+.coupon-card.used { opacity: 0.5; }
+.coupon-left { background: #FF6B35; width: 200rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30rpx 0; }
+.coupon-value { display: flex; align-items: baseline; }
+.symbol { font-size: 26rpx; color: #fff; }
+.amount { font-size: 60rpx; color: #fff; font-weight: bold; line-height: 1; }
+.min-amount { font-size: 20rpx; color: rgba(255,255,255,0.8); margin-top: 8rpx; }
+.coupon-right { flex: 1; padding: 24rpx; display: flex; flex-direction: column; justify-content: space-between; }
+.coupon-name { font-size: 28rpx; font-weight: bold; color: #333; }
+.coupon-date { font-size: 22rpx; color: #999; margin-top: 8rpx; }
+.coupon-status { font-size: 22rpx; color: #999; }
+.empty { display: flex; flex-direction: column; align-items: center; padding: 100rpx 0; gap: 30rpx; font-size: 28rpx; color: #999; }
+.go-btn { background: #FF6B35; color: #fff; padding: 18rpx 50rpx; border-radius: 50rpx; font-size: 26rpx; }

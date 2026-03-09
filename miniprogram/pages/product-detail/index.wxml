@@ -1,0 +1,66 @@
+<view class="detail-page" wx:if="{{product}}">
+  <!-- 商品图片轮播 -->
+  <swiper class="product-swiper" indicator-dots circular autoplay>
+    <swiper-item wx:for="{{product.images}}" wx:key="index">
+      <image class="swiper-img" src="{{item}}" mode="aspectFill" />
+    </swiper-item>
+  </swiper>
+
+  <!-- 价格区域 -->
+  <view class="price-section">
+    <view class="price-row">
+      <text class="current-price">¥{{currentPrice}}</text>
+      <text class="original-price" wx:if="{{product.original_price}}">¥{{product.original_price}}</text>
+    </view>
+    <text class="sales-text">已售 {{product.sales}}+</text>
+  </view>
+
+  <!-- 商品名称 -->
+  <view class="info-card">
+    <text class="product-name">{{product.name}}</text>
+    <text class="product-stock">库存：{{product.stock}}</text>
+  </view>
+
+  <!-- 规格选择 -->
+  <view class="spec-section" wx:if="{{product.specs && product.specs.length > 0}}">
+    <view class="section-title">规格</view>
+    <view class="spec-list">
+      <view
+        class="spec-item {{selectedSpec && selectedSpec.id === item.id ? 'selected' : ''}}"
+        wx:for="{{product.specs}}"
+        wx:key="id"
+        bindtap="onSelectSpec"
+        data-spec="{{item}}"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <!-- 数量选择 -->
+  <view class="qty-section">
+    <text class="section-title">数量</text>
+    <view class="qty-ctrl">
+      <view class="qty-btn" bindtap="onDecQty">-</view>
+      <text class="qty-num">{{quantity}}</text>
+      <view class="qty-btn" bindtap="onIncQty">+</view>
+    </view>
+  </view>
+
+  <!-- 商品描述 -->
+  <view class="desc-section" wx:if="{{product.description}}">
+    <view class="section-title">商品详情</view>
+    <text class="desc-text">{{product.description}}</text>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <navigator url="/pages/cart/index" open-type="switchTab" class="bar-btn cart-icon-btn">
+      <text>🛒</text>
+    </navigator>
+    <view class="bar-btn add-cart-btn" bindtap="onAddCart">加入购物车</view>
+    <view class="bar-btn buy-now-btn" bindtap="onBuyNow">立即购买</view>
+  </view>
+</view>
+
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

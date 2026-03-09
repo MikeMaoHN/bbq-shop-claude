@@ -1,0 +1,36 @@
+.confirm-page { background: #f5f5f5; min-height: 100vh; padding-bottom: 120rpx; }
+.address-card { background: #fff; margin-bottom: 16rpx; padding: 30rpx; display: flex; align-items: center; }
+.address-content { flex: 1; }
+.address-top { display: flex; align-items: center; gap: 16rpx; margin-bottom: 12rpx; }
+.addr-name { font-size: 30rpx; font-weight: bold; color: #333; }
+.addr-phone { font-size: 26rpx; color: #666; }
+.default-tag { font-size: 20rpx; color: #FF6B35; border: 1rpx solid #FF6B35; padding: 2rpx 8rpx; border-radius: 6rpx; }
+.addr-detail { font-size: 26rpx; color: #666; }
+.no-address { flex: 1; display: flex; align-items: center; gap: 12rpx; color: #999; font-size: 28rpx; }
+.add-icon { font-size: 36rpx; color: #FF6B35; }
+.arrow { font-size: 32rpx; color: #ccc; }
+.items-card { background: #fff; margin-bottom: 16rpx; padding: 24rpx 30rpx; }
+.shop-name { font-size: 28rpx; font-weight: bold; color: #333; margin-bottom: 20rpx; }
+.order-item { display: flex; gap: 20rpx; margin-bottom: 20rpx; }
+.item-img { width: 120rpx; height: 120rpx; border-radius: 8rpx; flex-shrink: 0; }
+.item-info { flex: 1; }
+.item-name { font-size: 26rpx; color: #333; }
+.item-spec { font-size: 22rpx; color: #999; display: block; margin-top: 6rpx; }
+.item-row { display: flex; justify-content: space-between; margin-top: 10rpx; }
+.item-price { font-size: 26rpx; color: #FF6B35; }
+.item-qty { font-size: 24rpx; color: #999; }
+.option-card, .remark-card { background: #fff; margin-bottom: 16rpx; padding: 20rpx 30rpx; }
+.option-row { display: flex; justify-content: space-between; align-items: center; padding: 16rpx 0; }
+.option-label { font-size: 28rpx; color: #333; }
+.option-value { font-size: 26rpx; color: #666; }
+.remark-label { font-size: 26rpx; color: #333; margin-bottom: 16rpx; display: block; }
+.remark-input { font-size: 26rpx; color: #666; border: 1rpx solid #e5e5e5; border-radius: 8rpx; padding: 16rpx; }
+.price-card { background: #fff; margin-bottom: 16rpx; padding: 20rpx 30rpx; }
+.price-row { display: flex; justify-content: space-between; padding: 14rpx 0; font-size: 26rpx; color: #666; }
+.total-row { border-top: 1rpx solid #f5f5f5; margin-top: 8rpx; padding-top: 20rpx; }
+.pay-amount { color: #FF6B35; font-weight: bold; font-size: 30rpx; }
+.submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; align-items: center; padding: 20rpx 30rpx; padding-bottom: calc(20rpx + env(safe-area-inset-bottom)); }
+.submit-price { flex: 1; font-size: 26rpx; }
+.pay-price { color: #FF6B35; font-size: 36rpx; font-weight: bold; }
+.submit-btn { background: #FF6B35; color: #fff; padding: 24rpx 60rpx; border-radius: 50rpx; font-size: 28rpx; }
+.submit-btn.disabled { background: #ccc; }

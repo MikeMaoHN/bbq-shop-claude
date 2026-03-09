@@ -1,0 +1,24 @@
+.cart-page { min-height: 100vh; background: #f5f5f5; padding-bottom: 120rpx; }
+.empty-cart { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 200rpx; }
+.empty-icon { font-size: 120rpx; }
+.empty-text { font-size: 28rpx; color: #999; margin: 20rpx 0 40rpx; }
+.go-shopping-btn { background: #FF6B35; color: #fff; padding: 20rpx 60rpx; border-radius: 50rpx; font-size: 28rpx; }
+.cart-item { display: flex; align-items: center; background: #fff; padding: 24rpx; margin-bottom: 2rpx; }
+.item-checkbox { margin-right: 16rpx; }
+.item-image { width: 160rpx; height: 160rpx; border-radius: 12rpx; flex-shrink: 0; }
+.item-info { flex: 1; padding: 0 16rpx; }
+.item-name { font-size: 28rpx; color: #333; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.item-spec { font-size: 22rpx; color: #999; margin-top: 8rpx; background: #f5f5f5; padding: 4rpx 12rpx; border-radius: 8rpx; display: inline-block; }
+.item-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 16rpx; }
+.item-price { font-size: 32rpx; color: #FF6B35; font-weight: bold; }
+.quantity-ctrl { display: flex; align-items: center; border: 1rpx solid #e5e5e5; border-radius: 8rpx; }
+.qty-btn { width: 56rpx; height: 56rpx; display: flex; align-items: center; justify-content: center; font-size: 36rpx; color: #666; }
+.qty-num { width: 60rpx; text-align: center; font-size: 28rpx; }
+.delete-btn { font-size: 40rpx; padding: 10rpx; color: #ccc; }
+.cart-footer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; align-items: center; padding: 20rpx 24rpx; box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.08); height: 100rpx; }
+.select-all { display: flex; align-items: center; gap: 8rpx; font-size: 26rpx; color: #333; flex-shrink: 0; }
+.total-section { flex: 1; padding-left: 20rpx; }
+.total-label { font-size: 26rpx; color: #666; }
+.total-price { font-size: 36rpx; color: #FF6B35; font-weight: bold; }
+.checkout-btn { background: #FF6B35; color: #fff; padding: 22rpx 40rpx; border-radius: 50rpx; font-size: 28rpx; flex-shrink: 0; }
+.checkout-btn.disabled { background: #ccc; }

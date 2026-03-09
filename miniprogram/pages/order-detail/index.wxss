@@ -1,0 +1,33 @@
+.detail-page { background: #f5f5f5; min-height: 100vh; padding-bottom: 120rpx; }
+.status-banner { padding: 40rpx 30rpx; display: flex; align-items: center; gap: 20rpx; }
+.status-0, .status-5 { background: #FF6B35; }
+.status-1, .status-2 { background: #1890ff; }
+.status-3 { background: #52c41a; }
+.status-4, .status-6 { background: #999; }
+.status-icon { font-size: 48rpx; }
+.status-text { font-size: 36rpx; color: #fff; font-weight: bold; }
+.section-card { background: #fff; margin: 16rpx; border-radius: 16rpx; padding: 24rpx 30rpx; }
+.addr-row { display: flex; gap: 16rpx; }
+.addr-icon { font-size: 36rpx; flex-shrink: 0; }
+.addr-top { display: flex; gap: 16rpx; margin-bottom: 8rpx; }
+.addr-name { font-size: 30rpx; font-weight: bold; color: #333; }
+.addr-phone { font-size: 26rpx; color: #666; }
+.addr-detail { font-size: 26rpx; color: #666; }
+.order-item { display: flex; gap: 20rpx; padding: 16rpx 0; border-bottom: 1rpx solid #f5f5f5; }
+.order-item:last-child { border-bottom: none; }
+.item-img { width: 120rpx; height: 120rpx; border-radius: 8rpx; flex-shrink: 0; }
+.item-name { font-size: 26rpx; color: #333; }
+.item-spec { font-size: 22rpx; color: #999; margin-top: 6rpx; display: block; }
+.item-bottom { display: flex; justify-content: space-between; margin-top: 10rpx; }
+.item-price { color: #FF6B35; font-size: 26rpx; }
+.item-qty { color: #999; font-size: 22rpx; }
+.price-row { display: flex; justify-content: space-between; padding: 12rpx 0; font-size: 26rpx; color: #666; }
+.total-row { border-top: 1rpx solid #f5f5f5; margin-top: 8rpx; padding-top: 18rpx; }
+.pay-price { color: #FF6B35; font-weight: bold; font-size: 30rpx; }
+.discount { color: #52c41a; }
+.info-row { display: flex; padding: 12rpx 0; font-size: 26rpx; }
+.info-label { color: #999; width: 160rpx; flex-shrink: 0; }
+.action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; justify-content: flex-end; gap: 16rpx; padding: 20rpx 30rpx; padding-bottom: calc(20rpx + env(safe-area-inset-bottom)); }
+.action-btn { padding: 18rpx 40rpx; border: 1rpx solid #e5e5e5; border-radius: 50rpx; font-size: 26rpx; color: #666; }
+.primary-btn { border-color: #FF6B35; color: #FF6B35; }
+.cancel-btn { color: #999; }
