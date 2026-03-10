@@ -6,3 +6,4 @@ dist/
 uploads/*
 !uploads/.gitkeep
 miniprogram/miniprogram_npm/
+**/tests/coverage/
