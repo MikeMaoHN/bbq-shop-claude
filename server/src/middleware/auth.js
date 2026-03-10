@@ -23,7 +23,7 @@ const authUser = async (req, res, next) => {
 
 // Admin authentication
 const authAdmin = async (req, res, next) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
+  const token = req.cookies.admin_access_token;
   if (!token) {
     return res.status(401).json({ code: 401, message: '请先登录' });
   }

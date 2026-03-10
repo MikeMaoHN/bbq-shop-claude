@@ -15,9 +15,15 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js"],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
     "coverageDirectory": "tests/coverage",
-    "coverageReporters": ["text", "lcov", "json-summary"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "json-summary"
+    ],
     "collectCoverageFrom": [
       "src/services/wechatPay.js",
       "src/routes/api/pay.js",
@@ -26,6 +32,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",

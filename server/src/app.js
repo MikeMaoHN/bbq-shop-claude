@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const config = require('./config');
 const db = require('./models');
@@ -9,7 +10,11 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: config.admin.origin,
+  credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

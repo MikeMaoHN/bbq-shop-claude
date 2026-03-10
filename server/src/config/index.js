@@ -8,7 +8,13 @@ module.exports = {
     secret: process.env.JWT_SECRET || 'default_jwt_secret',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     adminSecret: process.env.JWT_ADMIN_SECRET || 'default_admin_jwt_secret',
-    adminExpiresIn: process.env.JWT_ADMIN_EXPIRES_IN || '24h',
+    adminExpiresIn: process.env.JWT_ADMIN_EXPIRES_IN || '2h',
+    adminRefreshSecret: process.env.JWT_ADMIN_REFRESH_SECRET || 'default_admin_refresh_secret',
+    adminRefreshExpiresIn: process.env.JWT_ADMIN_REFRESH_EXPIRES_IN || '7d',
+  },
+
+  admin: {
+    origin: process.env.ADMIN_ORIGIN || 'http://localhost:8080',
   },
 
   wx: {

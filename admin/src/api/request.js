@@ -6,16 +6,22 @@ const MAX_RETRIES = 3
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api/admin',
-  timeout: Number(import.meta.env.VITE_REQUEST_TIMEOUT) || 15000
+  timeout: Number(import.meta.env.VITE_REQUEST_TIMEOUT) || 15000,
+  withCredentials: true,
 })
+
+// Track if a token refresh is in progress to avoid concurrent refresh calls
+let isRefreshing = false
+let pendingRequests = []
+
+function onRefreshed() {
+  pendingRequests.forEach(cb => cb())
+  pendingRequests = []
+}
 
 // Request interceptor
 request.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('admin_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
     config._startTime = Date.now()
     if (import.meta.env.DEV) {
       console.debug(`[API] ${config.method?.toUpperCase()} ${config.url}`, config.params || config.data || '')
@@ -43,6 +49,7 @@ request.interceptors.response.use(
   },
   async (error) => {
     const config = error.config
+
     // Retry on network errors (no response received)
     if (!error.response && config) {
       config._retryCount = (config._retryCount || 0) + 1
@@ -51,16 +58,41 @@ request.interceptors.response.use(
         return request(config)
       }
     }
+
     if (error.response) {
       if (import.meta.env.DEV) {
         const duration = Date.now() - (error.config?._startTime || 0)
         console.warn(`[API] ${error.config?.method?.toUpperCase()} ${error.config?.url} ${error.response.status} (${duration}ms)`, error.response.data)
       }
-      if (error.response.status === 401) {
-        localStorage.removeItem('admin_token')
-        ElMessage.error('登录已过期，请重新登录')
-        router.push('/login')
-      } else {
+
+      if (error.response.status === 401 && !config._isRetry) {
+        if (isRefreshing) {
+          // Queue the request until refresh completes
+          return new Promise((resolve, reject) => {
+            pendingRequests.push(() => {
+              config._isRetry = true
+              resolve(request(config))
+            })
+          })
+        }
+
+        isRefreshing = true
+        try {
+          await axios.post('/api/admin/auth/refresh', {}, { withCredentials: true })
+          onRefreshed()
+          config._isRetry = true
+          return request(config)
+        } catch {
+          pendingRequests = []
+          ElMessage.error('登录已过期，请重新登录')
+          router.push('/login')
+          return Promise.reject(error)
+        } finally {
+          isRefreshing = false
+        }
+      }
+
+      if (!config._isRetry) {
         ElMessage.error(error.response.data?.message || '请求失败')
       }
     } else {

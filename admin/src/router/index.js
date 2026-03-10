@@ -97,34 +97,34 @@ const router = createRouter({
 
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
-  const token = localStorage.getItem('admin_token')
+  const userStore = useUserStore()
+
   if (to.path === '/login') {
-    if (token) {
+    // If already authenticated, redirect to dashboard
+    if (userStore.adminInfo.id) {
       next('/')
-    } else {
-      next()
-    }
-  } else {
-    if (!token) {
-      next('/login')
-      return
-    }
-    const userStore = useUserStore()
-    if (!userStore.adminInfo.id) {
-      try {
-        await userStore.getInfo()
-      } catch {
-        next('/login')
-        return
-      }
-    }
-    const requiredRole = to.meta.role
-    if (requiredRole && userStore.adminInfo.role !== requiredRole) {
-      next('/dashboard')
       return
     }
     next()
+    return
   }
+
+  // Load user info if not yet loaded
+  if (!userStore.adminInfo.id) {
+    try {
+      await userStore.getInfo()
+    } catch {
+      next('/login')
+      return
+    }
+  }
+
+  const requiredRole = to.meta.role
+  if (requiredRole && userStore.adminInfo.role !== requiredRole) {
+    next('/dashboard')
+    return
+  }
+  next()
 })
 
 export default router
