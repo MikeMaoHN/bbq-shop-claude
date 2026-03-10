@@ -9,7 +9,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function login(loginData) {
     const res = await authApi.login(loginData)
-    const data = res.data || res
+    const data = res.data
     token.value = data.token
     localStorage.setItem('admin_token', data.token)
     return data
@@ -17,9 +17,8 @@ export const useUserStore = defineStore('user', () => {
 
   async function getInfo() {
     const res = await authApi.getInfo()
-    const data = res.data || res
-    adminInfo.value = data
-    return data
+    adminInfo.value = res.data
+    return res.data
   }
 
   async function logout() {

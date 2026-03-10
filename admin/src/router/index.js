@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AdminLayout from '../layouts/AdminLayout.vue'
+import { useUserStore } from '../stores/user'
 
 const routes = [
   {
@@ -95,7 +96,7 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('admin_token')
   if (to.path === '/login') {
     if (token) {
@@ -104,11 +105,20 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-    if (token) {
-      next()
-    } else {
+    if (!token) {
       next('/login')
+      return
     }
+    const userStore = useUserStore()
+    if (!userStore.adminInfo.id) {
+      try {
+        await userStore.getInfo()
+      } catch {
+        next('/login')
+        return
+      }
+    }
+    next()
   }
 })
 
