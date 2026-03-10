@@ -28,9 +28,10 @@ jest.mock('../../src/services/wechatPay', () => ({
 
 const request = require('supertest');
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const wxPay = require('../../src/services/wechatPay');
 const { Admin } = require('../../src/models');
-const { genAdminToken, mockAdmin, genUserToken, mockUser } = require('../helpers/testHelper');
+const { genAdminCookie, mockAdmin, genUserToken } = require('../helpers/testHelper');
 
 // 构建 app（小程序端 /mock-mode）
 const userApp = express();
@@ -42,10 +43,11 @@ userApp.use((err, req, res, _next) => res.status(500).json({ code: 500, message:
 const { authAdmin } = require('../../src/middleware/auth');
 const adminApp = express();
 adminApp.use(express.json());
+adminApp.use(cookieParser());
 adminApp.use('/pay', authAdmin, require('../../src/routes/admin/payConfig'));
 adminApp.use((err, req, res, _next) => res.status(500).json({ code: 500, message: err.message }));
 
-const adminToken = genAdminToken(1);
+const adminCookie = genAdminCookie(1);
 const userToken = genUserToken(1);
 
 beforeEach(() => {
@@ -70,7 +72,7 @@ describe('payConfig.js:19 — GET /pay/mock-mode (admin) isMockMode 异常', () 
 
     const res = await request(adminApp)
       .get('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminCookie);
 
     expect(res.status).toBe(500);
     expect(res.body.message).toContain('Admin service crash');

@@ -23,19 +23,21 @@ jest.mock('../../src/models', () => ({
 
 const request = require('supertest');
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const { Setting, Admin } = require('../../src/models');
-const { genAdminToken, mockAdmin } = require('../helpers/testHelper');
+const { genAdminCookie, mockAdmin } = require('../helpers/testHelper');
 
 // 构建测试 App（包含 authAdmin 中间件）
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // 直接挂载，复用真实 authAdmin
 const { authAdmin } = require('../../src/middleware/auth');
 app.use('/pay', authAdmin, require('../../src/routes/admin/payConfig'));
 app.use((err, req, res, _next) => res.status(500).json({ code: 500, message: err.message }));
 
-const adminToken = genAdminToken(1);
+const adminCookie = genAdminCookie(1);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -49,7 +51,7 @@ describe('TC-ADMIN-PAY-01: GET /mock-mode — 查询支付模式', () => {
   test('返回当前模式状态', async () => {
     const res = await request(app)
       .get('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminCookie);
 
     expect(res.status).toBe(200);
     expect(res.body.code).toBe(0);
@@ -61,7 +63,7 @@ describe('TC-ADMIN-PAY-01: GET /mock-mode — 查询支付模式', () => {
     Setting.findOne.mockResolvedValue({ value: 'true' });
     const res = await request(app)
       .get('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminCookie);
     expect(res.body.data.mock).toBe(true);
   });
 
@@ -69,7 +71,7 @@ describe('TC-ADMIN-PAY-01: GET /mock-mode — 查询支付模式', () => {
     Setting.findOne.mockResolvedValue({ value: 'false' });
     const res = await request(app)
       .get('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminCookie);
     expect(res.body.data.mock).toBe(false);
   });
 });
@@ -79,7 +81,7 @@ describe('TC-ADMIN-PAY-02/03: PUT /mock-mode — 切换支付模式', () => {
   test('TC-ADMIN-PAY-02: 切换为模拟支付模式', async () => {
     const res = await request(app)
       .put('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Cookie', adminCookie)
       .send({ mock: true });
 
     expect(res.status).toBe(200);
@@ -95,7 +97,7 @@ describe('TC-ADMIN-PAY-02/03: PUT /mock-mode — 切换支付模式', () => {
 
     const res = await request(app)
       .put('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Cookie', adminCookie)
       .send({ mock: false });
 
     expect(res.status).toBe(200);
@@ -108,7 +110,7 @@ describe('TC-ADMIN-PAY-02/03: PUT /mock-mode — 切换支付模式', () => {
   test('切换时写入 description 说明', async () => {
     await request(app)
       .put('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Cookie', adminCookie)
       .send({ mock: true });
 
     expect(Setting.upsert).toHaveBeenCalledWith(
@@ -119,16 +121,16 @@ describe('TC-ADMIN-PAY-02/03: PUT /mock-mode — 切换支付模式', () => {
 
 // ─────────────────────────────────────────────────────────────
 describe('TC-ADMIN-PAY-04: 鉴权验证', () => {
-  test('未携带 Token 返回 401', async () => {
+  test('未携带 Cookie 返回 401', async () => {
     const res = await request(app)
       .get('/pay/mock-mode');
     expect(res.status).toBe(401);
   });
 
-  test('无效 Token 返回 401', async () => {
+  test('无效 Cookie Token 返回 401', async () => {
     const res = await request(app)
       .put('/pay/mock-mode')
-      .set('Authorization', 'Bearer invalid_token_xyz')
+      .set('Cookie', 'admin_access_token=invalid_token_xyz')
       .send({ mock: true });
     expect(res.status).toBe(401);
   });
@@ -138,7 +140,7 @@ describe('TC-ADMIN-PAY-04: 鉴权验证', () => {
 
     const res = await request(app)
       .get('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminCookie);
     expect(res.status).toBe(401);
   });
 });
@@ -150,7 +152,7 @@ describe('TC-ADMIN-PAY-05: 异常处理', () => {
 
     const res = await request(app)
       .put('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Cookie', adminCookie)
       .send({ mock: true });
 
     expect(res.status).toBe(500);
@@ -161,7 +163,7 @@ describe('TC-ADMIN-PAY-05: 异常处理', () => {
     // isMockMode 内部 catch 会回退到 config，不会 throw，所以 GET 返回 200
     const res = await request(app)
       .get('/pay/mock-mode')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', adminCookie);
     expect(res.status).toBe(200); // 降级到 env 变量，不崩溃
   });
 });
