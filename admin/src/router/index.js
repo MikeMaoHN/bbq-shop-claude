@@ -78,13 +78,13 @@ const routes = [
         path: 'admins',
         name: 'Admins',
         component: () => import('../views/system/admin.vue'),
-        meta: { title: '管理员管理' }
+        meta: { title: '管理员管理', role: 'super_admin' }
       },
       {
         path: 'settings',
         name: 'Settings',
         component: () => import('../views/system/setting.vue'),
-        meta: { title: '系统设置' }
+        meta: { title: '系统设置', role: 'super_admin' }
       }
     ]
   }
@@ -117,6 +117,11 @@ router.beforeEach(async (to, from, next) => {
         next('/login')
         return
       }
+    }
+    const requiredRole = to.meta.role
+    if (requiredRole && userStore.adminInfo.role !== requiredRole) {
+      next('/dashboard')
+      return
     }
     next()
   }
