@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/images', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Routes
 app.use('/api/v1', require('./routes/api'));

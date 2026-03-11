@@ -1,15 +1,25 @@
 require('dotenv').config();
 
+const isProduction = (process.env.NODE_ENV || 'development') === 'production';
+
+function requireSecret(envVar, defaultVal) {
+  if (isProduction && !process.env[envVar]) {
+    console.error(`[config] FATAL: ${envVar} must be set in production environment`);
+    process.exit(1);
+  }
+  return process.env[envVar] || defaultVal;
+}
+
 module.exports = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development',
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'default_jwt_secret',
+    secret: requireSecret('JWT_SECRET', 'default_jwt_secret'),
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    adminSecret: process.env.JWT_ADMIN_SECRET || 'default_admin_jwt_secret',
+    adminSecret: requireSecret('JWT_ADMIN_SECRET', 'default_admin_jwt_secret'),
     adminExpiresIn: process.env.JWT_ADMIN_EXPIRES_IN || '2h',
-    adminRefreshSecret: process.env.JWT_ADMIN_REFRESH_SECRET || 'default_admin_refresh_secret',
+    adminRefreshSecret: requireSecret('JWT_ADMIN_REFRESH_SECRET', 'default_admin_refresh_secret'),
     adminRefreshExpiresIn: process.env.JWT_ADMIN_REFRESH_EXPIRES_IN || '7d',
   },
 

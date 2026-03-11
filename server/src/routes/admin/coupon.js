@@ -6,13 +6,14 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10 } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize, 10) || 10));
     const result = await db.Coupon.findAndCountAll({
       order: [['created_at', 'DESC']],
-      limit: parseInt(pageSize, 10),
-      offset: (parseInt(page, 10) - 1) * parseInt(pageSize, 10),
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
-    paginate(res, { ...result, page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) });
+    paginate(res, { ...result, page, pageSize });
   } catch (err) {
     next(err);
   }

@@ -77,7 +77,9 @@ async function isMockMode() {
   try {
     const row = await db.Setting.findOne({ where: { key: 'pay_mock_mode' } });
     if (row) return row.value === 'true' || row.value === '1';
-  } catch (_) {}
+  } catch (err) {
+    console.error('[wechatPay] isMockMode DB read failed, falling back to env config:', err.message);
+  }
   // 回退到环境变量
   return config.wx.payMock === true;
 }
@@ -151,7 +153,11 @@ async function realRefund({ orderNo, transactionId, totalFen, refundFen, refundN
   params.sign = signV2(params, mchKey);
 
   const xml = toXml(params);
-  // 退款接口要求双向证书，此处仅做接口调用结构；真实环境需传 pfx 证书
+  // 退款接口要求双向证书（mTLS）。生产环境需在 httpsPost options 中传入 pfx/passphrase。
+  // 示例：{ ..., pfx: fs.readFileSync(process.env.WX_CERT_PATH), passphrase: mchId }
+  if (!process.env.WX_CERT_PATH) {
+    console.warn('[wechatPay] WX_CERT_PATH not set — refund will fail in production without mTLS cert');
+  }
   const respXml = await httpsPost(
     {
       hostname: 'api.mch.weixin.qq.com',

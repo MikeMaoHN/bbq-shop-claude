@@ -8,22 +8,25 @@ const router = express.Router();
 // 用户列表
 router.get('/', async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10, keyword } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize, 10) || 10));
+    const { keyword } = req.query;
     const where = {};
     if (keyword) {
+      const safeKeyword = String(keyword).slice(0, 50);
       where[Op.or] = [
-        { nickname: { [Op.like]: `%${keyword}%` } },
-        { phone: { [Op.like]: `%${keyword}%` } },
+        { nickname: { [Op.like]: `%${safeKeyword}%` } },
+        { phone: { [Op.like]: `%${safeKeyword}%` } },
       ];
     }
     const result = await db.User.findAndCountAll({
       where,
       attributes: { exclude: ['openid'] },
       order: [['created_at', 'DESC']],
-      limit: parseInt(pageSize, 10),
-      offset: (parseInt(page, 10) - 1) * parseInt(pageSize, 10),
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
-    paginate(res, { ...result, page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) });
+    paginate(res, { ...result, page, pageSize });
   } catch (err) {
     next(err);
   }

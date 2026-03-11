@@ -10,13 +10,16 @@ const router = express.Router();
 // 订单列表
 router.get('/', async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10, status, order_no, start_date, end_date } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize, 10) || 10));
+    const { status, order_no, start_date, end_date } = req.query;
     const where = {};
     if (status !== undefined && status !== '') {
       where.status = parseInt(status, 10);
     }
     if (order_no) {
-      where.order_no = { [Op.like]: `%${order_no}%` };
+      const safeOrderNo = String(order_no).slice(0, 50);
+      where.order_no = { [Op.like]: `%${safeOrderNo}%` };
     }
     if (start_date && end_date) {
       where.created_at = { [Op.between]: [new Date(start_date), new Date(end_date)] };
@@ -29,11 +32,11 @@ router.get('/', async (req, res, next) => {
         { model: db.OrderItem, as: 'items' },
       ],
       order: [['created_at', 'DESC']],
-      limit: parseInt(pageSize, 10),
-      offset: (parseInt(page, 10) - 1) * parseInt(pageSize, 10),
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
 
-    paginate(res, { ...result, page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) });
+    paginate(res, { ...result, page, pageSize });
   } catch (err) {
     next(err);
   }
@@ -78,6 +81,7 @@ router.put('/:id/deliver', async (req, res, next) => {
 router.put('/:id/refund', async (req, res, next) => {
   try {
     const { action } = req.body; // approve or reject
+    if (!['approve', 'reject'].includes(action)) return fail(res, '无效操作');
     const order = await db.Order.findByPk(req.params.id);
     if (!order) {
       return fail(res, '订单不存在', 404);
@@ -87,17 +91,23 @@ router.put('/:id/refund', async (req, res, next) => {
     }
     if (action === 'approve') {
       const totalFen = Math.round(parseFloat(order.pay_amount) * 100);
-      await wxPay.processRefund({
-        orderNo: order.order_no,
-        transactionId: order.transaction_id,
-        totalFen,
-        refundFen: totalFen,
-        refundNo: `REF${generateOrderNo()}`,
-      });
+      try {
+        await wxPay.processRefund({
+          orderNo: order.order_no,
+          transactionId: order.transaction_id,
+          totalFen,
+          refundFen: totalFen,
+          refundNo: `REF${generateOrderNo()}`,
+        });
+      } catch (payErr) {
+        return fail(res, `退款请求失败: ${payErr.message}`);
+      }
       await order.update({ status: 6 });
       success(res, null, '退款已通过');
     } else {
-      await order.update({ status: 1 });
+      // Restore to the status before refund was requested (paid=1 or shipped=2)
+      const restoreStatus = order.deliver_time ? 2 : 1;
+      await order.update({ status: restoreStatus });
       success(res, null, '退款已拒绝');
     }
   } catch (err) {

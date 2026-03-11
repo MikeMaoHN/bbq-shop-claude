@@ -26,23 +26,28 @@ router.get('/available', async (req, res, next) => {
 
 // 领取优惠券
 router.post('/:id/claim', authUser, async (req, res, next) => {
+  const t = await db.sequelize.transaction();
   try {
-    const coupon = await db.Coupon.findByPk(req.params.id);
-    if (!coupon || coupon.status !== 1) return fail(res, '优惠券不存在');
+    const coupon = await db.Coupon.findByPk(req.params.id, { lock: t.LOCK.UPDATE, transaction: t });
+    if (!coupon || coupon.status !== 1) { await t.rollback(); return fail(res, '优惠券不存在'); }
 
     const existing = await db.UserCoupon.findOne({
       where: { user_id: req.user.id, coupon_id: coupon.id },
+      transaction: t,
     });
-    if (existing) return fail(res, '已领取过该优惠券');
+    if (existing) { await t.rollback(); return fail(res, '已领取过该优惠券'); }
 
     if (coupon.total_count > 0 && coupon.used_count >= coupon.total_count) {
+      await t.rollback();
       return fail(res, '优惠券已领完');
     }
 
-    await db.UserCoupon.create({ user_id: req.user.id, coupon_id: coupon.id, status: 0 });
-    await db.Coupon.increment('used_count', { where: { id: coupon.id } });
+    await db.UserCoupon.create({ user_id: req.user.id, coupon_id: coupon.id, status: 0 }, { transaction: t });
+    await db.Coupon.increment('used_count', { where: { id: coupon.id }, transaction: t });
+    await t.commit();
     success(res, null, '领取成功');
   } catch (err) {
+    await t.rollback();
     next(err);
   }
 });

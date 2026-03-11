@@ -8,10 +8,13 @@ const router = express.Router();
 // 商品列表
 router.get('/', async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10, keyword, category_id, status } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize, 10) || 10));
+    const { keyword, category_id, status } = req.query;
     const where = {};
     if (keyword) {
-      where.name = { [Op.like]: `%${keyword}%` };
+      const safeKeyword = String(keyword).slice(0, 50);
+      where.name = { [Op.like]: `%${safeKeyword}%` };
     }
     if (category_id) {
       where.category_id = category_id;
@@ -27,11 +30,11 @@ router.get('/', async (req, res, next) => {
         { model: db.ProductSpec, as: 'specs' },
       ],
       order: [['created_at', 'DESC']],
-      limit: parseInt(pageSize, 10),
-      offset: (parseInt(page, 10) - 1) * parseInt(pageSize, 10),
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
 
-    paginate(res, { ...result, page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) });
+    paginate(res, { ...result, page, pageSize });
   } catch (err) {
     next(err);
   }
@@ -41,6 +44,8 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const { specs, ...productData } = req.body;
+    if (productData.price !== undefined && parseFloat(productData.price) < 0) return fail(res, '价格不能为负数');
+    if (productData.stock !== undefined && parseInt(productData.stock, 10) < 0) return fail(res, '库存不能为负数');
     const product = await db.sequelize.transaction(async (t) => {
       const p = await db.Product.create(productData, { transaction: t });
       if (specs && specs.length > 0) {
@@ -66,6 +71,8 @@ router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const { specs, ...productData } = req.body;
+    if (productData.price !== undefined && parseFloat(productData.price) < 0) return fail(res, '价格不能为负数');
+    if (productData.stock !== undefined && parseInt(productData.stock, 10) < 0) return fail(res, '库存不能为负数');
     const product = await db.Product.findByPk(id);
     if (!product) {
       return fail(res, '商品不存在', 404);

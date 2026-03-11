@@ -25,7 +25,7 @@ Page({
     let total = 0
     let count = 0
     this.data.cartItems.forEach(item => {
-      if (item.checked) {
+      if (item.checked && item.Product) {
         const price = item.ProductSpec ? item.ProductSpec.price : item.Product.price
         total += price * item.quantity
         count++

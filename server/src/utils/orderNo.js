@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const generateOrderNo = () => {
   const now = new Date();
   const year = now.getFullYear().toString();
@@ -6,7 +8,7 @@ const generateOrderNo = () => {
   const hours = now.getHours().toString().padStart(2, '0');
   const minutes = now.getMinutes().toString().padStart(2, '0');
   const seconds = now.getSeconds().toString().padStart(2, '0');
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const random = crypto.randomBytes(3).toString('hex').toUpperCase();
   return `BBQ${year}${month}${day}${hours}${minutes}${seconds}${random}`;
 };
 

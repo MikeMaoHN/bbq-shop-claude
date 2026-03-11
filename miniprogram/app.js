@@ -1,8 +1,17 @@
+// 根据环境切换 API 地址
+const envConfig = {
+  develop: 'http://localhost:3000/api/v1',
+  trial: 'https://your-staging-domain.com/api/v1',
+  release: 'https://your-production-domain.com/api/v1',
+}
+const accountInfo = wx.getAccountInfoSync ? wx.getAccountInfoSync() : {}
+const envVersion = (accountInfo.miniProgram && accountInfo.miniProgram.envVersion) || 'develop'
+
 App({
   globalData: {
     userInfo: null,
     token: '',
-    baseUrl: 'http://localhost:3000/api/v1'
+    baseUrl: envConfig[envVersion] || envConfig.develop
   },
 
   onLaunch() {

@@ -30,6 +30,10 @@ router.post('/', async (req, res, next) => {
     const orderItems = [];
 
     for (const item of items) {
+      const qty = parseInt(item.quantity, 10);
+      if (isNaN(qty) || qty < 1 || qty > 999) { await t.rollback(); return fail(res, '商品数量不合法'); }
+      item.quantity = qty;
+
       const product = await db.Product.findByPk(item.product_id, { lock: t.LOCK.UPDATE, transaction: t });
       if (!product || product.status !== 1) { await t.rollback(); return fail(res, `商品 ${item.product_id} 不可用`); }
 
@@ -106,18 +110,19 @@ router.post('/', async (req, res, next) => {
 // 订单列表
 router.get('/', async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10, status } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize, 10) || 10));
     const where = { user_id: req.user.id };
-    if (status !== undefined && status !== '') where.status = parseInt(status, 10);
+    if (req.query.status !== undefined && req.query.status !== '') where.status = parseInt(req.query.status, 10);
 
     const result = await db.Order.findAndCountAll({
       where,
       include: [{ model: db.OrderItem, as: 'items' }],
       order: [['created_at', 'DESC']],
-      limit: parseInt(pageSize, 10),
-      offset: (parseInt(page, 10) - 1) * parseInt(pageSize, 10),
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
-    paginate(res, { ...result, page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) });
+    paginate(res, { ...result, page, pageSize });
   } catch (err) {
     next(err);
   }

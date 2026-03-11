@@ -37,8 +37,9 @@ Page({
   },
 
   onIncQty() {
-    const max = this.data.selectedSpec ? this.data.selectedSpec.stock : this.data.product.stock
-    if (this.data.quantity >= max) return wx.showToast({ title: '库存不足', icon: 'none' })
+    const stock = this.data.selectedSpec ? this.data.selectedSpec.stock : this.data.product.stock
+    const max = Math.min(stock, 999)
+    if (this.data.quantity >= max) return wx.showToast({ title: this.data.quantity >= 999 ? '单次最多购买999件' : '库存不足', icon: 'none' })
     this.setData({ quantity: this.data.quantity + 1 })
   },
 
