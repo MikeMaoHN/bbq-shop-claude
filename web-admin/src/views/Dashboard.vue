@@ -1,6 +1,30 @@
 <template>
   <div class="dashboard">
-    <el-row :gutter="20">
+    <!-- 时间范围选择器 -->
+    <el-card class="time-range-card">
+      <div class="time-range-bar">
+        <el-radio-group v-model="quickDays" @change="onQuickDaysChange">
+          <el-radio-button :value="7">近7天</el-radio-button>
+          <el-radio-button :value="30">近30天</el-radio-button>
+          <el-radio-button :value="90">近90天</el-radio-button>
+          <el-radio-button :value="180">近180天</el-radio-button>
+          <el-radio-button :value="0">自定义</el-radio-button>
+        </el-radio-group>
+        <el-date-picker
+          v-if="quickDays === 0"
+          v-model="customRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="YYYY-MM-DD"
+          style="margin-left: 16px;"
+          @change="onCustomRangeChange"
+        />
+      </div>
+    </el-card>
+
+    <el-row :gutter="20" style="margin-top: 20px;">
       <el-col :span="6">
         <el-card class="stat-card">
           <div class="stat-content">
@@ -133,7 +157,7 @@
 <script setup>
 /**
  * 数据概览页（Dashboard）
- * 展示近 7 天的订单统计、商品销量 TOP10 和库存预警（阈值 20 件）。
+ * 支持快捷时间段（近7/30/90/180天）和自定义日期区间两种查询模式。
  * 页面挂载时并发加载统计数据和库存预警，互不依赖可同时请求。
  */
 import { ref, onMounted } from 'vue'
@@ -146,16 +170,44 @@ const stats = ref({ orderStats: {}, productStats: [] })
 // 库存低于预警值（20件）的商品列表
 const lowStockProducts = ref([])
 
+// quickDays=0 表示切换到自定义日期模式
+const quickDays = ref(7)
+// 自定义日期区间 [startDate, endDate]，格式 YYYY-MM-DD
+const customRange = ref(null)
+
 onMounted(() => {
   // 并发加载两个独立数据源，不互相等待
   loadStats()
   loadLowStock()
 })
 
-/** 加载近 7 天订单和销量统计 */
+/** 切换快捷时间段时重新拉取统计数据 */
+const onQuickDaysChange = (val) => {
+  if (val !== 0) {
+    customRange.value = null
+    loadStats()
+  }
+}
+
+/** 自定义区间选定后拉取统计数据 */
+const onCustomRangeChange = (val) => {
+  if (val && val.length === 2) {
+    loadStats()
+  }
+}
+
+/** 加载订单和销量统计，根据当前选中的时间范围传参 */
 const loadStats = async () => {
   try {
-    stats.value = await api.getStats({ days: 7 })
+    let params
+    if (quickDays.value === 0 && customRange.value?.length === 2) {
+      // 自定义区间：传 startDate/endDate
+      params = { startDate: customRange.value[0], endDate: customRange.value[1] }
+    } else {
+      // 快捷时间段：传 days
+      params = { days: quickDays.value }
+    }
+    stats.value = await api.getStats(params)
   } catch (error) {
     console.error('加载统计数据失败:', error)
   }
@@ -177,6 +229,15 @@ const goStock = () => {
 </script>
 
 <style scoped>
+.time-range-card {
+  margin-bottom: 0;
+}
+
+.time-range-bar {
+  display: flex;
+  align-items: center;
+}
+
 .stat-card {
   cursor: pointer;
   transition: transform 0.3s;

@@ -169,7 +169,24 @@ class Order {
     return { list, total, page, limit };
   }
 
-  static async getStats(days = 7) {
+  /**
+   * 获取统计数据
+   * 支持两种时间范围模式：
+   *   1. days（整数）：近 N 天，默认 7 天
+   *   2. startDate / endDate（YYYY-MM-DD 字符串）：自定义时间段
+   */
+  static async getStats({ days = 7, startDate, endDate } = {}) {
+    // 自定义时间段优先，否则按近 N 天计算
+    let timeCondition;
+    let timeParams;
+    if (startDate && endDate) {
+      timeCondition = 'created_at >= ? AND created_at < DATE_ADD(?, INTERVAL 1 DAY)';
+      timeParams = [startDate, endDate];
+    } else {
+      timeCondition = 'created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)';
+      timeParams = [days];
+    }
+
     const [orderStatsRows] = await pool.query(
       `SELECT
         COUNT(*) as total_orders,
@@ -180,8 +197,8 @@ class Order {
         SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) as cancelled_orders,
         SUM(CASE WHEN status = 3 THEN total_amount ELSE 0 END) / 100 as total_revenue
        FROM orders
-       WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)`,
-      [days]
+       WHERE ${timeCondition}`,
+      timeParams
     );
 
     const [productStats] = await pool.query(
@@ -189,11 +206,11 @@ class Order {
        FROM order_items oi
        INNER JOIN products p ON oi.product_id = p.id
        INNER JOIN orders o ON oi.order_id = o.id
-       WHERE o.status = 3 AND o.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+       WHERE o.status = 3 AND o.${timeCondition}
        GROUP BY p.id
        ORDER BY sales DESC
        LIMIT 10`,
-      [days]
+      timeParams
     );
 
     return { orderStats: orderStatsRows[0], productStats };

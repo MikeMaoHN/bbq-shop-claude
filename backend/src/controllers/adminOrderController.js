@@ -106,8 +106,12 @@ class AdminOrderController {
    */
   static async stats(req, res) {
     try {
-      const { days = 7 } = req.query;
-      const stats = await Order.getStats(parseInt(days));
+      const { days = 7, startDate, endDate } = req.query;
+      const stats = await Order.getStats({
+        days: parseInt(days),
+        startDate: startDate || undefined,
+        endDate: endDate || undefined
+      });
       res.json(Response.success(stats));
     } catch (error) {
       console.error('获取统计数据错误:', error);
