@@ -1,0 +1,123 @@
+<view class="container">
+  <!-- 用户信息 -->
+  <view class="user-header card">
+    <block wx:if="{{userInfo.id}}">
+      <view class="user-info">
+        <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="user-detail">
+          <view class="nickname">{{userInfo.nickname || '点击登录'}}</view>
+          <view class="user-id">ID: {{userInfo.id}}</view>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <button class="login-btn" bindtap="wxLogin">微信登录</button>
+    </block>
+  </view>
+
+  <!-- 订单入口 -->
+  <view class="order-entries card">
+    <view class="entry-item" bindtap="goOrder" data-status="">
+      <text class="iconfont icon-order"></text>
+      <text>全部订单</text>
+    </view>
+    <view class="entry-item" bindtap="goOrder" data-status="0">
+      <text class="iconfont icon-unpaid"></text>
+      <text>待付�?/text>
+    </view>
+    <view class="entry-item" bindtap="goOrder" data-status="1">
+      <text class="iconfont icon-unship"></text>
+      <text>待发�?/text>
+    </view>
+    <view class="entry-item" bindtap="goOrder" data-status="2">
+      <text class="iconfont icon-unrecv"></text>
+      <text>待收�?/text>
+    </view>
+    <view class="entry-item" bindtap="goOrder" data-status="3">
+      <text class="iconfont icon-completed"></text>
+      <text>已完�?/text>
+    </view>
+  </view>
+
+  <!-- 地址管理 -->
+  <view class="menu-section card" wx:if="{{!selectAddressMode}}">
+    <view class="menu-item" bindtap="goAddresses">
+      <text class="menu-label">收货地址</text>
+      <text class="iconfont icon-arrow"></text>
+    </view>
+  </view>
+
+  <!-- 地址列表（选择模式�?-->
+  <view class="address-list card" wx:if="{{selectAddressMode && !showAddressForm}}">
+    <!-- 顶部操作�?-->
+    <view class="address-list-header">
+      <button class="back-btn" bindtap="backToOrder">返回订单</button>
+      <button class="add-btn" bindtap="goAddAddress">新增地址</button>
+    </view>
+    <!-- 地址列表 -->
+    <view class="address-item {{item.is_default ? 'default' : ''}}" wx:for="{{addresses}}" wx:key="id">
+      <view class="address-header" bindtap="selectAddress" data-id="{{item.id}}">
+        <text class="name">{{item.name}}</text>
+        <text class="phone">{{item.phone}}</text>
+        <text class="default-tag" wx:if="{{item.is_default}}">默认</text>
+      </view>
+      <view class="address-detail" bindtap="selectAddress" data-id="{{item.id}}">{{item.province}}{{item.city}}{{item.district}}{{item.detail}}</view>
+      <view class="address-actions">
+        <button class="edit-btn" bindtap="editAddress" data-id="{{item.id}}">编辑</button>
+      </view>
+    </view>
+    <!-- 空状态提�?-->
+    <view class="empty-address" wx:if="{{addresses.length === 0}}">
+      <text class="empty-text">暂无收货地址</text>
+      <text class="empty-hint">请点�?新增地址"添加</text>
+    </view>
+  </view>
+
+  <!-- 地址编辑表单 -->
+  <view class="address-form card" wx:if="{{showAddressForm}}">
+    <!-- 表单标题 -->
+    <view class="form-title">
+      <text>{{editingAddressId ? '编辑收货地址' : '新增收货地址'}}</text>
+    </view>
+    <view class="form-item">
+      <text class="label">收货�?/text>
+      <input class="input" placeholder="请输入姓�? value="{{formData.name}}" bindinput="onInput" data-field="name" />
+    </view>
+    <view class="form-item">
+      <text class="label">手机�?/text>
+      <input class="input" placeholder="请输入手机号" value="{{formData.phone}}" bindinput="onInput" data-field="phone" maxlength="11" />
+    </view>
+    <view class="form-item">
+      <text class="label">所在地�?/text>
+      <picker mode="region" value="{{formData.region}}" bindchange="onRegionChange">
+        <view class="picker">
+          {{formData.region[0] || '选择省份'}} {{formData.region[1] || '选择城市'}} {{formData.region[2] || '选择区县'}}
+        </view>
+      </picker>
+    </view>
+    <view class="form-item">
+      <text class="label">详细地址</text>
+      <input class="input" placeholder="请输入详细地址" value="{{formData.detail}}" bindinput="onInput" data-field="detail" />
+    </view>
+    <view class="form-item checkbox-item">
+      <view class="checkbox {{formData.isDefault ? 'checked' : ''}}" bindtap="toggleDefault"></view>
+      <text>设为默认地址</text>
+    </view>
+    <view class="form-actions">
+      <button class="btn btn-secondary" bindtap="cancelAddress">取消</button>
+      <button class="btn btn-primary" bindtap="saveAddress">保存</button>
+    </view>
+  </view>
+
+  <!-- 其他功能 -->
+  <view class="menu-section card" wx:if="{{!selectAddressMode && !showAddressForm}}">
+    <view class="menu-item" bindtap="contactService">
+      <text class="menu-label">联系客服</text>
+      <text class="iconfont icon-arrow"></text>
+    </view>
+    <view class="menu-item" bindtap="about">
+      <text class="menu-label">关于我们</text>
+      <text class="iconfont icon-arrow"></text>
+    </view>
+  </view>
+</view>

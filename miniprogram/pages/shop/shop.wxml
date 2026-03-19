@@ -1,0 +1,85 @@
+<view class="container">
+  <!-- 搜索栏和分类 -->
+  <view class="header">
+    <view class="search-bar">
+      <view class="search-input-wrapper">
+        <text class="iconfont icon-search"></text>
+        <input 
+          class="search-input" 
+          placeholder="搜索食材" 
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          bindconfirm="doSearch"
+          confirm-type="search"
+        />
+        <text class="clear-icon" wx:if="{{searchKeyword}}" bindtap="clearSearch">×</text>
+      </view>
+    </view>
+    
+    <!-- 分类筛选 -->
+    <scroll-view class="category-scroll" scroll-x>
+      <view 
+        class="category-tab {{categoryId === item.id ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="id"
+        bindtap="selectCategory"
+        data-id="{{item.id}}"
+      >
+        {{item.name}}
+      </view>
+      <view 
+        class="category-tab {{categoryId === '' ? 'active' : ''}}"
+        bindtap="selectCategory"
+        data-id=""
+      >
+        全部
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="product-list">
+    <view 
+      class="product-item"
+      wx:for="{{products}}"
+      wx:key="id"
+      bindtap="goProduct"
+      data-id="{{item.id}}"
+    >
+      <image class="product-image" src="{{item.firstImage}}" mode="aspectFill"></image>
+      <view class="product-info">
+        <view class="product-name">{{item.name}}</view>
+        <view class="product-desc">{{item.description}}</view>
+        <view class="product-bottom">
+          <view class="product-price">
+            <text class="price-symbol">¥</text>
+            <text class="price">{{item.priceFixed}}</text>
+            <text class="original-price" wx:if="{{item.originalPriceFixed}}">¥{{item.originalPriceFixed}}</text>
+          </view>
+          <view class="product-sales">销量 {{item.sales}}</view>
+        </view>
+        <view class="stock-info" wx:if="{{item.stock <= 10 && item.stock > 0}}">
+          库存紧张
+        </view>
+        <view class="out-stock" wx:if="{{item.stock === 0}}">
+          暂时缺货
+        </view>
+      </view>
+      <view class="add-cart" catchtap="addToCart" data-id="{{item.id}}" wx:if="{{item.stock > 0}}">
+        <text class="iconfont icon-cart"></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">加载中...</view>
+  <view class="empty" wx:if="{{!loading && products.length === 0}}">
+    <text class="empty-text">暂无商品</text>
+  </view>
+
+  <!-- 购物车图标 -->
+  <view class="cart-icon" bindtap="goCart" wx:if="{{cartCount > 0}}">
+    <text class="iconfont icon-cart"></text>
+    <view class="cart-badge">{{cartCount}}</view>
+  </view>
+</view>

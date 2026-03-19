@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input" bindtap="goSearch">
+      <text class="iconfont icon-search"></text>
+      <text class="placeholder">搜索烧烤食材</text>
+    </view>
+  </view>
+
+  <!-- 轮播图 -->
+  <view class="banner">
+    <swiper class="swiper" indicator-dots autoplay circular>
+      <swiper-item wx:for="{{banners}}" wx:key="id">
+        <image class="banner-image" src="{{item.image}}" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 分类导航 -->
+  <view class="category-section card">
+    <view class="section-title">分类导航</view>
+    <view class="category-grid">
+      <view 
+        class="category-item" 
+        wx:for="{{categories}}" 
+        wx:key="id"
+        bindtap="goCategory"
+        data-id="{{item.id}}"
+      >
+        <image class="category-icon" src="{{item.icon || '/images/default-category.png'}}" mode="aspectFit"></image>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 热销商品 -->
+  <view class="hot-section card">
+    <view class="section-title">热销推荐</view>
+    <view class="product-grid">
+      <view 
+        class="product-item" 
+        wx:for="{{hotProducts}}" 
+        wx:key="id"
+        bindtap="goProduct"
+        data-id="{{item.id}}"
+      >
+        <image class="product-image" src="{{item.firstImage}}" mode="aspectFill"></image>
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-price">
+            <text class="price">¥{{item.priceFixed}}</text>
+            <text class="original-price" wx:if="{{item.originalPriceFixed}}">¥{{item.originalPriceFixed}}</text>
+          </view>
+          <view class="product-sales">已售{{item.sales}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading" wx:if="{{loading}}">加载中...</view>
+</view>

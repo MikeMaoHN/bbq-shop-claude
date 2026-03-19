@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>商品管理测试</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .item { padding: 10px; border-bottom: 1px solid #eee; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>商品管理页面数据测试</h1>
+    <div id="status"></div>
+    <div id="products"></div>
+    
+    <script>
+        async function test() {
+            const status = document.getElementById('status');
+            status.innerHTML = '正在测试...';
+            
+            try {
+                // 1. 测试登录
+                status.innerHTML += '<br>1. 测试登录...';
+                const loginRes = await fetch('/admin/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                const loginData = await loginRes.json();
+                status.innerHTML += ` 登录：${loginData.code === 200 ? '✅' : '❌'}`;
+                
+                if (loginData.code !== 200) {
+                    status.innerHTML += `<br class="error">错误：${loginData.message}`;
+                    return;
+                }
+                
+                const token = loginData.data.token;
+                
+                // 2. 测试商品列表
+                status.innerHTML += '<br>2. 测试商品列表...';
+                const productsRes = await fetch('/admin/api/products?page=1&limit=10', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const productsData = await productsRes.json();
+                status.innerHTML += ` 状态码：${productsData.code}`;
+                
+                if (productsData.code === 200) {
+                    status.innerHTML += `<br>✅ 商品总数：${productsData.data.total}`;
+                    const productsDiv = document.getElementById('products');
+                    productsDiv.innerHTML = '<h3>商品列表：</h3>';
+                    productsData.data.list.forEach((p, i) => {
+                        productsDiv.innerHTML += `
+                            <div class="item">
+                                ${i+1}. ${p.name} - 库存：${p.stock}件 - 价格：¥${(p.price/100).toFixed(2)}
+                            </div>
+                        `;
+                    });
+                } else {
+                    status.innerHTML += `<br class="error">错误：${productsData.message}`;
+                }
+                
+            } catch (e) {
+                status.innerHTML += `<br class="error">异常：${e.message}`;
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>

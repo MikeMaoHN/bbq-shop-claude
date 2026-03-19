@@ -1,0 +1,286 @@
+/* 个人中心样式 */
+.user-header {
+  margin: 20rpx;
+  padding: 40rpx 30rpx;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  margin-right: 30rpx;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.user-id {
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+.login-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: none;
+  padding: 15rpx 40rpx;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+}
+
+/* 订单入口 */
+.order-entries {
+  margin: 20rpx;
+  padding: 30rpx 20rpx;
+  display: flex;
+  justify-content: space-around;
+}
+
+.entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.entry-item .iconfont {
+  font-size: 48rpx;
+  margin-bottom: 15rpx;
+  color: #e74c3c;
+}
+
+/* 菜单列表 */
+.menu-section {
+  margin: 20rpx;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-label {
+  font-size: 30rpx;
+  color: #333;
+}
+
+.icon-arrow {
+  color: #ccc;
+}
+
+/* 地址列表 */
+.address-list {
+  margin: 20rpx;
+  padding: 20rpx;
+}
+
+.address-item {
+  padding: 30rpx 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.address-item:last-child {
+  border-bottom: none;
+}
+
+.address-item.default {
+  background: #fff5f5;
+  border-radius: 8rpx;
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.address-header .name {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-right: 20rpx;
+}
+
+.address-header .phone {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.default-tag {
+  margin-left: 20rpx;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+.address-detail {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15rpx;
+}
+
+.address-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15rpx;
+}
+
+.edit-btn {
+  background: none;
+  color: #e74c3c;
+  border: 1rpx solid #e74c3c;
+  border-radius: 4rpx;
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.add-address-btn {
+  margin-top: 30rpx;
+  background: #f5f5f5;
+  color: #666;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+/* 地址表单 */
+.address-form {
+  margin: 20rpx;
+  padding: 30rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item .label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+}
+
+.form-item .input, .form-item .picker {
+  width: 100%;
+  padding: 20rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-item .checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 50%;
+  margin-right: 15rpx;
+}
+
+.checkbox-item .checkbox.checked {
+  background: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.form-actions {
+  display: flex;
+  gap: 30rpx;
+  margin-top: 40rpx;
+}
+
+.form-actions .btn {
+  flex: 1;
+}
+
+/* 地址列表顶部操作栏 */
+.address-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.back-btn {
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  padding: 12rpx 30rpx;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.add-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  padding: 12rpx 30rpx;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 表单标题 */
+.form-title {
+  text-align: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.form-title text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 空地址状态 */
+.empty-address {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+  color: #999;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  margin-bottom: 15rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #bbb;
+}

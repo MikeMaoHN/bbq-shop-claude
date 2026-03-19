@@ -1,0 +1,111 @@
+/**
+ * 全局样式
+ */
+page {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 20rpx;
+}
+
+/* 通用按钮 */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 40rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #e74c3c;
+  border: 2rpx solid #e74c3c;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 加载中 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50rpx;
+  color: #999;
+}
+
+/* 卡片样式 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: #eee;
+  margin: 20rpx 0;
+}
+
+/* 图标字体 - 临时使用 Unicode 字符替代
+@font-face {
+  font-family: 'iconfont';
+  src: url('//at.alicdn.com/t/font_1234567.woff2') format('woff2'),
+       url('//at.alicdn.com/t/font_1234567.woff') format('woff'),
+       url('//at.alicdn.com/t/font_1234567.ttf') format('truetype');
+}
+*/
+
+.iconfont {
+  display: inline-block;
+  font-size: 32rpx;
+  font-style: normal;
+}
+
+/* 使用 Unicode 字符作为临时图标 */
+.icon-search:before { content: '🔍'; }
+.icon-cart:before { content: '🛒'; }
+.icon-arrow:before { content: '›'; }
+.icon-order:before { content: '📋'; }
+.icon-unpaid:before { content: '💰'; }
+.icon-unship:before { content: '📦'; }
+.icon-unrecv:before { content: '🚚'; }
+.icon-completed:before { content: '✅'; }

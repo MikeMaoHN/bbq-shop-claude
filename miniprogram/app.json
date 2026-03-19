@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/shop/shop",
+    "pages/product/product",
+    "pages/order/order",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#e74c3c",
+    "navigationBarTitleText": "烧烤食材店",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#e74c3c",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab/home.png",
+        "selectedIconPath": "images/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/shop/shop",
+        "text": "商城",
+        "iconPath": "images/tab/shop.png",
+        "selectedIconPath": "images/tab/shop-active.png"
+      },
+      {
+        "pagePath": "pages/order/order",
+        "text": "订单",
+        "iconPath": "images/tab/order.png",
+        "selectedIconPath": "images/tab/order-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab/profile.png",
+        "selectedIconPath": "images/tab/profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

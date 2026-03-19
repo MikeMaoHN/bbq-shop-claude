@@ -1,0 +1,34 @@
+{
+  "name": "bbq-shop-miniprogram",
+  "version": "1.0.0",
+  "description": "烧烤食材售卖小程序",
+  "appid": "wx94b4d7c059d93cea",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "swc": false,
+    "disableSWC": true
+  },
+  "libVersion": "2.19.4",
+  "projectname": "bbq-shop"
+}

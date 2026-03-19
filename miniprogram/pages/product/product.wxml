@@ -1,0 +1,78 @@
+<view class="container">
+  <!-- 购物车模式 -->
+  <view wx:if="{{isCartMode}}" class="cart-page">
+    <view class="cart-header">
+      <text class="title">购物车</text>
+      <text class="clear-btn" bindtap="clearCart">清空</text>
+    </view>
+    
+    <view class="cart-list" wx:if="{{cartItems.length > 0}}">
+      <view class="cart-item" wx:for="{{cartItems}}" wx:key="id">
+        <view class="checkbox {{item.checked ? 'checked' : ''}}" bindtap="toggleCheck" data-id="{{item.id}}"></view>
+        <image class="product-image" src="{{item.firstImage}}" mode="aspectFill"></image>
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-price">¥{{item.priceFixed}}</view>
+        </view>
+        <view class="stepper">
+          <view class="stepper-btn" bindtap="decrease" data-id="{{item.id}}">-</view>
+          <view class="stepper-value">{{item.quantity}}</view>
+          <view class="stepper-btn" bindtap="increase" data-id="{{item.id}}">+</view>
+        </view>
+        <view class="delete-btn" bindtap="deleteItem" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    
+    <view class="empty" wx:else>
+      <text class="empty-text">购物车空空如也</text>
+      <button class="btn btn-primary" bindtap="goShop">去逛逛</button>
+    </view>
+    
+    <view class="cart-footer" wx:if="{{cartItems.length > 0}}">
+      <view class="select-all {{allChecked ? 'checked' : ''}}" bindtap="toggleAll">
+        <text>全选</text>
+      </view>
+      <view class="total-info">
+        <text>合计：</text>
+        <text class="total-price">¥{{totalPriceFixed}}</text>
+      </view>
+      <button class="checkout-btn" bindtap="checkout">
+        结算 ({{checkedCount}})
+      </button>
+    </view>
+  </view>
+
+  <!-- 商品详情模式 -->
+  <view wx:else class="product-detail">
+    <swiper class="product-swiper" indicator-dots>
+      <swiper-item wx:for="{{productImages}}" wx:key="*this">
+        <image class="product-image" src="{{item}}" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+    
+    <view class="product-basic card">
+      <view class="product-price-row">
+        <text class="price">¥{{product.priceFixed}}</text>
+        <text class="original-price" wx:if="{{product.originalPriceFixed}}">¥{{product.originalPriceFixed}}</text>
+      </view>
+      <view class="product-name">{{product.name}}</view>
+      <view class="product-sales">已售 {{product.sales}} 件</view>
+      <view class="stock-tag" wx:if="{{product.stock <= 10}}">库存紧张</view>
+    </view>
+    
+    <view class="product-desc card">
+      <view class="section-title">商品详情</view>
+      <view class="desc-content">{{product.description || '暂无描述'}}</view>
+    </view>
+    
+    <view class="product-footer">
+      <view class="footer-actions">
+        <view class="action-btn" bindtap="addToCart">
+          <text class="iconfont icon-cart"></text>
+          <text>购物车</text>
+        </view>
+      </view>
+      <button class="buy-btn" bindtap="buyNow">立即购买</button>
+    </view>
+  </view>
+</view>
