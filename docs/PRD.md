@@ -49,7 +49,7 @@
 - 确认订单（选择地址、备注）
 - 订单列表（全部、待付款、待发货、待收货、已完成）
 - 订单详情
-- 订单取消（待付款状态）
+- 订单取消（待付款状态；待发货状态亦可取消，取消后自动恢复库存并向管理端发送站内信通知）
 
 #### 2.1.6 个人中心
 - 用户信息展示
@@ -80,7 +80,13 @@
 - 发货操作（填写物流信息）
 - 订单备注
 
-#### 2.2.5 数据统计
+#### 2.2.5 站内信通知中心
+- 通知列表（分页展示，未读优先高亮）
+- 待发货订单被用户取消时自动推送站内信
+- 单条已读 / 一键全部已读
+- 顶部导航栏展示未读数角标，实时提醒管理员
+
+#### 2.2.7 数据统计
 - 销售统计（日/周/月）
 - 商品销量排行
 - 订单状态分布
@@ -253,6 +259,18 @@
 | status | TINYINT | 状态 |
 | created_at | DATETIME | 创建时间 |
 
+### 4.10 站内信通知表 (notifications)
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGINT | 主键 |
+| type | VARCHAR(32) | 通知类型（如 order_cancel） |
+| title | VARCHAR(128) | 标题 |
+| content | TEXT | 内容 |
+| ref_type | VARCHAR(32) | 关联类型（如 order） |
+| ref_id | BIGINT | 关联 ID（如订单 ID） |
+| is_read | TINYINT | 是否已读（0 未读 / 1 已读） |
+| created_at | DATETIME | 创建时间 |
+
 ---
 
 ## 5. API 接口设计
@@ -299,14 +317,18 @@
 ### 5.6 管理端接口
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | /admin/login | 管理员登录 |
-| GET | /admin/products | 商品列表 |
-| POST | /admin/products | 新增商品 |
-| PUT | /admin/products/:id | 更新商品 |
-| DELETE | /admin/products/:id | 删除商品 |
-| GET | /admin/orders | 订单列表 |
-| PUT | /admin/orders/:id/ship | 发货 |
-| GET | /admin/stats | 统计数据 |
+| POST | /admin/api/login | 管理员登录 |
+| GET | /admin/api/products | 商品列表 |
+| POST | /admin/api/products | 新增商品 |
+| PUT | /admin/api/products/:id | 更新商品 |
+| DELETE | /admin/api/products/:id | 删除商品 |
+| GET | /admin/api/orders | 订单列表 |
+| PUT | /admin/api/orders/:id/ship | 发货 |
+| GET | /admin/api/stats | 统计数据 |
+| GET | /admin/api/notifications | 站内信列表 |
+| GET | /admin/api/notifications/unread-count | 未读数量 |
+| PUT | /admin/api/notifications/:id/read | 标记单条已读 |
+| PUT | /admin/api/notifications/read-all | 全部已读 |
 
 ---
 
@@ -314,8 +336,9 @@
 
 ```
 待付款 (0) ──支付──► 待发货 (1) ──发货──► 待收货 (2) ──确认收货──► 已完成 (3)
-    │
-    └──取消订单──► 已取消 (4)
+    │                    │
+    └──取消订单──────────┘──► 已取消 (4)
+                              （待发货取消：恢复库存 + 站内信通知管理员）
 ```
 
 ---
@@ -329,7 +352,7 @@
 | 小程序端 | 微信登录 | ✅ 已实现 |
 | 小程序端 | 商品列表/详情 | ✅ 已实现 |
 | 小程序端 | 购物车 | ✅ 已实现 |
-| 小程序端 | 订单创建/查询/取消 | ✅ 已实现 |
+| 小程序端 | 订单创建/查询/取消（含待发货取消） | ✅ 已实现 |
 | 小程序端 | 微信支付 | ✅ 已实现（支持 MOCK/REAL 双模式） |
 | 小程序端 | 收货地址管理 | ✅ 已实现 |
 | 小程序端 | 个人中心 | ✅ 已实现 |
@@ -337,6 +360,7 @@
 | Web 管理端 | 商品 CRUD + 图片上传 | ✅ 已实现 |
 | Web 管理端 | 分类管理 | ✅ 已实现 |
 | Web 管理端 | 订单管理（发货/备注） | ✅ 已实现 |
+| Web 管理端 | 站内信通知中心（取消订单提醒） | ✅ 已实现 |
 | Web 管理端 | 库存管理（调整/预警） | ✅ 已实现 |
 | Web 管理端 | 数据概览仪表盘 | ✅ 已实现 |
 | 后端 API | 用户认证（JWT + Token 刷新） | ✅ 已实现 |
@@ -400,5 +424,5 @@
 
 ---
 
-*文档版本：v1.3*
+*文档版本：v1.4*
 *最后更新：2026-03-19*

@@ -12,6 +12,7 @@
  *     orders        - 订单列表
  *     orders/:id    - 订单详情
  *     stock         - 库存管理
+ *     notifications - 站内信通知中心
  */
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -62,6 +63,12 @@ const routes = [
         name: 'Stock',
         component: () => import('@/views/stock/StockList.vue'),
         meta: { title: '库存管理' }
+      },
+      {
+        path: 'notifications',
+        name: 'Notifications',
+        component: () => import('@/views/notifications/NotificationList.vue'),
+        meta: { title: '消息通知' }
       }
     ]
   }

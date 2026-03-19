@@ -103,6 +103,24 @@ export default {
     return request.get('/stats/low-stock', { params })
   },
 
+  // ==================== 站内信通知 ====================
+  /** 获取通知列表（未读优先，分页） */
+  getNotifications(params) {
+    return request.get('/notifications', { params })
+  },
+  /** 获取未读通知数量（用于顶部角标） */
+  getUnreadCount() {
+    return request.get('/notifications/unread-count')
+  },
+  /** 将指定通知标记为已读 */
+  markNotificationRead(id) {
+    return request.put(`/notifications/${id}/read`)
+  },
+  /** 将所有通知标记为已读 */
+  markAllNotificationsRead() {
+    return request.put('/notifications/read-all')
+  },
+
   // ==================== 文件上传 ====================
   /** 上传商品图片，返回图片访问路径 */
   uploadImage(file) {

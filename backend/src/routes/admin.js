@@ -21,6 +21,7 @@ const CategoryController = require('../controllers/categoryController');
 const ProductController = require('../controllers/productController');
 const AdminOrderController = require('../controllers/adminOrderController');
 const AdminStockController = require('../controllers/adminStockController');
+const AdminNotificationController = require('../controllers/adminNotificationController');
 const UploadController = require('../controllers/uploadController');
 
 // 配置 multer
@@ -97,6 +98,12 @@ router.put('/orders/:id/remark', idParamValidation, AdminOrderController.remark)
 // 统计数据
 router.get('/stats', AdminOrderController.stats);
 router.get('/stats/low-stock', AdminOrderController.getLowStockProducts);
+
+// 站内信通知
+router.get('/notifications/unread-count', AdminNotificationController.getUnreadCount);
+router.get('/notifications', paginationValidation, AdminNotificationController.list);
+router.put('/notifications/read-all', AdminNotificationController.markAllRead);
+router.put('/notifications/:id/read', idParamValidation, AdminNotificationController.markRead);
 
 // 文件上传（限流）
 router.post('/upload/image', uploadLimiter, upload.single('file'), UploadController.uploadImage);

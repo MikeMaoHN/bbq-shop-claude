@@ -29,6 +29,13 @@
           <el-icon><Box /></el-icon>
           <span>库存管理</span>
         </el-menu-item>
+        <el-menu-item index="/notifications">
+          <el-icon><Bell /></el-icon>
+          <span>
+            消息通知
+            <el-badge v-if="unreadCount > 0" :value="unreadCount" :max="99" class="menu-badge" />
+          </span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     
@@ -38,7 +45,13 @@
           <span class="page-title">{{ pageTitle }}</span>
         </div>
         <div class="header-right">
-          <el-dropdown @command="handleCommand">
+          <!-- 通知铃铛 -->
+          <el-badge :value="unreadCount" :max="99" :hidden="unreadCount === 0" class="bell-badge">
+            <el-button circle plain @click="$router.push('/notifications')">
+              <el-icon><Bell /></el-icon>
+            </el-button>
+          </el-badge>
+          <el-dropdown @command="handleCommand" style="margin-left: 16px;">
             <span class="user-info">
               <el-avatar :size="32" icon="UserFilled" />
               <span class="username">{{ authStore.admin?.username || '管理员' }}</span>
@@ -62,27 +75,46 @@
 <script setup>
 /**
  * 主布局组件
- * 提供左侧导航菜单 + 顶部 Header + 内容区三栏结构，
- * 子页面通过 <router-view> 渲染在内容区。
+ * 提供左侧导航菜单 + 顶部 Header + 内容区三栏结构。
+ * 登录后每隔 60 秒轮询一次未读通知数量，在铃铛和菜单项上展示角标。
  */
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/api'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
-// 当前路由路径对应左侧菜单高亮项
 const activeMenu = computed(() => route.path)
-// 从路由 meta.title 读取当前页标题，显示在顶部 Header
 const pageTitle = computed(() => route.meta.title || '')
 
-/**
- * 顶部下拉菜单命令处理
- * 目前仅支持 'logout' 命令，弹出确认后清除登录态并跳转登录页
- */
+// 未读通知数（0 时隐藏角标）
+const unreadCount = ref(0)
+
+const fetchUnreadCount = async () => {
+  try {
+    const data = await api.getUnreadCount()
+    unreadCount.value = data.count || 0
+  } catch {
+    // 静默失败，不影响主界面
+  }
+}
+
+let pollTimer = null
+
+onMounted(() => {
+  fetchUnreadCount()
+  // 每 60 秒轮询一次
+  pollTimer = setInterval(fetchUnreadCount, 60000)
+})
+
+onUnmounted(() => {
+  clearInterval(pollTimer)
+})
+
 const handleCommand = (command) => {
   if (command === 'logout') {
     ElMessageBox.confirm('确定要退出登录吗？', '提示', {
@@ -145,5 +177,14 @@ const handleCommand = (command) => {
 .main {
   background: #f0f2f5;
   padding: 20px;
+}
+
+.bell-badge {
+  vertical-align: middle;
+}
+
+.menu-badge {
+  margin-left: 6px;
+  vertical-align: middle;
 }
 </style>

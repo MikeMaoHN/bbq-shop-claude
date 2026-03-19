@@ -7,6 +7,7 @@ const Order = require('../models/Order');
 const CartItem = require('../models/CartItem');
 const Product = require('../models/Product');
 const StockLog = require('../models/StockLog');
+const Notification = require('../models/Notification');
 const WeChatPayService = require('../services/wechatPayService');
 const pool = require('../config/database');
 const config = require('../config');
@@ -382,6 +383,9 @@ class OrderController {
 
   /**
    * 取消订单
+   * 支持状态：待付款（0）和待发货（1）
+   * - 待付款取消：直接更新状态
+   * - 待发货取消：恢复已扣减库存 + 向管理端发送站内信通知
    * 事务保证：库存恢复和订单状态更新的原子性
    */
   static async cancel(req, res) {
@@ -404,31 +408,39 @@ class OrderController {
         return res.status(403).json(Response.error('无权操作此订单'));
       }
 
-      if (order.status !== ORDER_STATUS.UNPAID) {
+      const cancellableStatuses = [ORDER_STATUS.UNPAID, ORDER_STATUS.PENDING_SHIP];
+      if (!cancellableStatuses.includes(order.status)) {
         await conn.rollback();
-        return res.status(400).json(Response.error('只能取消待付款订单'));
+        return res.status(400).json(Response.error('只能取消待付款或待发货的订单'));
       }
 
-      // 恢复库存并记录流水
-      for (const item of order.items) {
-        const product = await Product.findById(item.product_id);
-        const beforeStock = product ? product.stock : 0;
-        const afterStock = beforeStock + item.quantity;
+      // 待发货订单已扣减库存（支付时扣减），取消时需恢复
+      if (order.status === ORDER_STATUS.PENDING_SHIP) {
+        for (const item of order.items) {
+          const [productRows] = await conn.execute(
+            'SELECT stock FROM products WHERE id = ? FOR UPDATE',
+            [item.product_id]
+          );
+          if (!productRows.length) continue;
 
-        await conn.execute(
-          'UPDATE products SET stock = ? WHERE id = ?',
-          [afterStock, item.product_id]
-        );
+          const beforeStock = productRows[0].stock;
+          const afterStock = beforeStock + item.quantity;
 
-        await StockLog.create({
-          productId: item.product_id,
-          changeQty: item.quantity,
-          beforeStock,
-          afterStock,
-          reason: '取消订单',
-          referenceType: 'order',
-          referenceId: orderId
-        });
+          await conn.execute(
+            'UPDATE products SET stock = ? WHERE id = ?',
+            [afterStock, item.product_id]
+          );
+
+          await StockLog.create({
+            productId: item.product_id,
+            changeQty: item.quantity,
+            beforeStock,
+            afterStock,
+            reason: '用户取消待发货订单',
+            referenceType: 'order',
+            referenceId: orderId
+          });
+        }
       }
 
       // 更新订单状态为已取消
@@ -438,6 +450,23 @@ class OrderController {
       );
 
       await conn.commit();
+
+      // 待发货取消：事务提交后发送站内信，通知管理员跟进退款
+      if (order.status === ORDER_STATUS.PENDING_SHIP) {
+        try {
+          await Notification.create({
+            type: 'order_cancel',
+            title: '用户取消待发货订单',
+            content: `订单号 ${order.order_no} 已被用户取消（原因：${reason}），请及时处理退款事宜。`,
+            refType: 'order',
+            refId: order.id
+          });
+        } catch (notifyErr) {
+          // 通知创建失败不影响主流程，记录日志即可
+          console.error('创建取消订单通知失败:', notifyErr);
+        }
+      }
+
       res.json(Response.success(null, '订单已取消'));
     } catch (error) {
       await conn.rollback();

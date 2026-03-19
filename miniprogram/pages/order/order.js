@@ -187,14 +187,19 @@ Page({
 
   async cancelOrder(e) {
     const { id } = e.currentTarget.dataset;
-    
+    // 找到当前订单，判断状态以展示不同提示文案
+    const order = this.data.orders.find(o => o.id === id);
+    const isPendingShip = order && order.status === 1;
+
     wx.showModal({
       title: '提示',
-      content: '确定取消订单吗？',
+      content: isPendingShip
+        ? '订单已付款，确定申请取消吗？取消后将退款，商家会收到通知。'
+        : '确定取消订单吗？',
       success: async (res) => {
         if (res.confirm) {
           try {
-            await api.cancelOrder(id, '用户主动取消');
+            await api.cancelOrder(id, '用户申请取消');
             wx.showToast({ title: '订单已取消', icon: 'success' });
             this.loadOrders();
           } catch (error) {
