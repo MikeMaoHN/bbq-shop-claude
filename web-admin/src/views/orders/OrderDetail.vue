@@ -44,11 +44,11 @@
         <el-table-column type="index" width="50" />
         <el-table-column prop="product_name" label="商品名称" />
         <el-table-column prop="price" label="单价" width="100" align="right">
-          <template #default="{ row }">¥{{ row.price / 100 }}</template>
+          <template #default="{ row }">¥{{ (row.price / 100).toFixed(2) }}</template>
         </el-table-column>
         <el-table-column prop="quantity" label="数量" width="80" align="center" />
         <el-table-column label="小计" width="100" align="right">
-          <template #default="{ row }">¥{{ (row.price * row.quantity) / 100 }}</template>
+          <template #default="{ row }">¥{{ (row.price * row.quantity / 100).toFixed(2) }}</template>
         </el-table-column>
       </el-table>
 
@@ -57,15 +57,15 @@
       <div class="amount-summary">
         <div class="amount-row">
           <span>订单总额：</span>
-          <span>¥{{ order.total_amount / 100 }}</span>
+          <span>¥{{ (order.total_amount / 100).toFixed(2) }}</span>
         </div>
         <div class="amount-row">
           <span>运费：</span>
-          <span>¥{{ order.freight_amount / 100 }}</span>
+          <span>¥{{ (order.freight_amount / 100).toFixed(2) }}</span>
         </div>
         <div class="amount-row total">
           <span>实付金额：</span>
-          <span>¥{{ order.pay_amount / 100 }}</span>
+          <span>¥{{ (order.pay_amount / 100).toFixed(2) }}</span>
         </div>
       </div>
 

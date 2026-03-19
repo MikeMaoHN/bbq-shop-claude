@@ -29,7 +29,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="total_amount" label="订单金额" width="100" align="right">
-          <template #default="{ row }">¥{{ row.total_amount / 100 }}</template>
+          <template #default="{ row }">¥{{ (row.total_amount / 100).toFixed(2) }}</template>
         </el-table-column>
         <el-table-column label="订单状态" width="100">
           <template #default="{ row }">

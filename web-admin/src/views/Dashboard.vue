@@ -50,7 +50,7 @@
               <el-icon><Money /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">¥{{ stats.orderStats?.total_revenue || 0 }}</div>
+              <div class="stat-value">¥{{ Number(stats.orderStats?.total_revenue || 0).toFixed(2) }}</div>
               <div class="stat-label">销售收入</div>
             </div>
           </div>
